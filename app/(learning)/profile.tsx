@@ -1,0 +1,212 @@
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
+
+import {
+  Button,
+  Card,
+  IconButton,
+  Input,
+  Screen,
+  Typography,
+} from "../../components";
+import { useAuth } from "../../hooks/useAuth";
+import { apiRequest } from "../../lib/api";
+import { asRecord, asText } from "../../lib/learning";
+import { colors, radii, spacing } from "../../theme/tokens";
+
+export default function ProfileScreen() {
+  const router = useRouter();
+  const { bootstrap, refreshBootstrap, session, signOut, user } = useAuth();
+  const [displayName, setDisplayName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const profile = asRecord(bootstrap?.profile);
+
+  useEffect(() => {
+    const task = setTimeout(
+      () => setDisplayName(asText(profile.displayName ?? profile.name)),
+      0,
+    );
+    return () => clearTimeout(task);
+  }, [profile.displayName, profile.name]);
+
+  const save = async () => {
+    if (!session?.access_token) return;
+    setSaving(true);
+    setError(null);
+    setSaved(false);
+    try {
+      await apiRequest("/api/user-profile", {
+        method: "PUT",
+        accessToken: session.access_token,
+        body: { profile: { displayName: displayName.trim() } },
+      });
+      await refreshBootstrap();
+      setSaved(true);
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Your profile could not be saved. Try again online.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const leave = async () => {
+    setSigningOut(true);
+    setError(null);
+    try {
+      await signOut();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Sign out did not complete.",
+      );
+      setSigningOut(false);
+    }
+  };
+
+  return (
+    <Screen scroll contentContainerStyle={styles.content}>
+      <View style={styles.top}>
+        <IconButton
+          icon="arrow-left"
+          label="Back"
+          onPress={() => router.back()}
+        />
+        <Typography variant="heading">Profile</Typography>
+        <View style={styles.spacer} />
+      </View>
+      <Card>
+        <View style={styles.identity}>
+          <View style={styles.avatar}>
+            <MaterialCommunityIcons
+              name="account-outline"
+              size={25}
+              color={colors.primary}
+            />
+          </View>
+          <View style={styles.identityCopy}>
+            <Typography variant="bodyMedium">
+              {user?.email ?? "Signed-in learner"}
+            </Typography>
+            <Typography variant="caption" color={colors.textSecondary}>
+              Your LearnPath account
+            </Typography>
+          </View>
+        </View>
+        <Input
+          label="Display name"
+          value={displayName}
+          onChangeText={setDisplayName}
+          placeholder="How should we greet you?"
+          maxLength={80}
+          autoCapitalize="words"
+        />
+        <Button
+          label="Save profile"
+          onPress={() => void save()}
+          loading={saving}
+          disabled={!displayName.trim()}
+        />
+        {saved ? (
+          <Typography variant="caption" color={colors.success}>
+            Profile saved.
+          </Typography>
+        ) : null}
+        {error ? (
+          <Typography
+            accessibilityRole="alert"
+            variant="caption"
+            color={colors.error}
+          >
+            {error}
+          </Typography>
+        ) : null}
+      </Card>
+      <Card
+        onPress={() => router.push("/(learning)/settings" as never)}
+        accessibilityLabel="Open learning preferences"
+      >
+        <View style={styles.linkRow}>
+          <View style={styles.linkIcon}>
+            <MaterialCommunityIcons
+              name="tune-variant"
+              size={20}
+              color={colors.primary}
+            />
+          </View>
+          <View style={styles.identityCopy}>
+            <Typography variant="bodyMedium">Learning preferences</Typography>
+            <Typography variant="caption" color={colors.textSecondary}>
+              Study time, experience, and style
+            </Typography>
+          </View>
+          <MaterialCommunityIcons
+            name="chevron-right"
+            size={20}
+            color={colors.textMuted}
+          />
+        </View>
+      </Card>
+      <Card>
+        <Typography variant="bodyMedium">Account</Typography>
+        <Typography
+          variant="caption"
+          color={colors.textSecondary}
+          style={styles.accountText}
+        >
+          Your account is managed by LearnPath and Supabase. Password recovery
+          is available from the sign-in screen. Account deletion is not
+          currently available in the app.
+        </Typography>
+        <Button
+          label="Sign out"
+          variant="secondary"
+          onPress={() => void leave()}
+          loading={signingOut}
+        />
+      </Card>
+    </Screen>
+  );
+}
+
+const styles = StyleSheet.create({
+  content: { gap: spacing.md, paddingBottom: spacing.xl },
+  top: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
+  },
+  spacer: { width: 48 },
+  identity: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: radii.full,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.primarySoft,
+  },
+  identityCopy: { flex: 1, gap: 3 },
+  linkRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  linkIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: radii.md,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.primarySoft,
+  },
+  accountText: {
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+    lineHeight: 21,
+  },
+});

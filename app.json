@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "LearnPath AI",
+    "slug": "learnpath-mobile",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.rohanxlabs.learnpath",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
+    "scheme": "learnpath",
+    "extra": {
+      "mobile": {
+        "supabaseUrl": {},
+        "supabaseKey": {},
+        "apiUrl": {}
+      },
+      "router": {},
+      "eas": {
+        "projectId": "2c4d768e-ebba-4448-a6ec-9e591797ee85"
+      }
+    },
+    "owner": "rohanxlabs"
+  }
+}
