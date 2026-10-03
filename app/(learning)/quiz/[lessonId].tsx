@@ -342,6 +342,14 @@ export default function QuizScreen() {
                 <Typography variant="caption" color={colors.textSecondary}>
                   Question {questionIndex + 1} of {quiz.questions.length}
                 </Typography>
+                <Typography variant="caption" color={colors.textMuted}>
+                  {Math.round(
+                    ((questionIndex + (answeredCurrent ? 1 : 0)) /
+                      quiz.questions.length) *
+                      100,
+                  )}
+                  % through practice
+                </Typography>
                 <ProgressBar
                   value={questionIndex / quiz.questions.length}
                   label={`Question ${questionIndex + 1} of ${quiz.questions.length}`}

@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, View } from "react-native";
 
 import { Typography } from "./Typography";
-import { colors, radii, spacing } from "../theme/tokens";
+import { colors, layout, radii, spacing } from "../theme/tokens";
 
 export function CacheNotice({
   savedAt,
@@ -20,7 +20,7 @@ export function CacheNotice({
     <View accessibilityRole="alert" style={styles.notice}>
       <MaterialCommunityIcons
         name="cloud-off-outline"
-        size={18}
+        size={layout.iconSmall}
         color={colors.warning}
       />
       <Typography

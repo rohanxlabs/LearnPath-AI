@@ -2,7 +2,7 @@ import { Text as NativeText, TextProps, StyleSheet } from "react-native";
 
 import { colors, typography } from "../theme/tokens";
 
-type TextVariant = keyof typeof typography;
+export type TextVariant = keyof typeof typography;
 
 type TypographyProps = TextProps & {
   variant?: TextVariant;

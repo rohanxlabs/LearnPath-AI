@@ -15,6 +15,8 @@ type ScreenProps = PropsWithChildren<{
   scroll?: boolean;
   keyboardAvoiding?: boolean;
   contentContainerStyle?: ViewStyle;
+  bottomSafeArea?: boolean;
+  contentWidth?: "standard" | "reading" | "chat";
 }>;
 
 export function Screen({
@@ -22,8 +24,14 @@ export function Screen({
   scroll = false,
   keyboardAvoiding = false,
   contentContainerStyle,
+  bottomSafeArea = false,
+  contentWidth = "standard",
 }: ScreenProps) {
-  const innerContent = <View style={styles.innerContent}>{children}</View>;
+  const innerContent = (
+    <View style={[styles.innerContent, styles[`${contentWidth}Content`]]}>
+      {children}
+    </View>
+  );
   const content = scroll ? (
     <ScrollView
       contentContainerStyle={[styles.scrollContent, contentContainerStyle]}
@@ -36,10 +44,13 @@ export function Screen({
   );
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+    <SafeAreaView
+      style={styles.safeArea}
+      edges={bottomSafeArea ? ["top", "left", "right", "bottom"] : ["top", "left", "right"]}
+    >
       {keyboardAvoiding ? (
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={styles.flex}
         >
           {content}
@@ -62,4 +73,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     flexGrow: 1,
   },
+  standardContent: { maxWidth: layout.maxContentWidth },
+  readingContent: { maxWidth: layout.maxReadingWidth },
+  chatContent: { maxWidth: layout.maxChatWidth },
 });

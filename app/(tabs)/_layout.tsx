@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
 
 import { useAuth } from "../../hooks/useAuth";
-import { colors, layout, typography } from "../../theme/tokens";
+import { colors, layout, spacing, typography } from "../../theme/tokens";
 
 const tabIcons = {
   home: "home-variant-outline",
@@ -23,11 +23,11 @@ export default function TabsLayout() {
         tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarLabelStyle: typography.label,
+        tabBarLabelStyle: typography.navigation,
         tabBarStyle: {
           minHeight: layout.androidTouchTarget + 12,
-          paddingTop: 8,
-          paddingBottom: 8,
+          paddingTop: spacing.sm,
+          paddingBottom: spacing.sm,
           borderTopColor: colors.border,
           backgroundColor: colors.surface,
         },
@@ -42,10 +42,25 @@ export default function TabsLayout() {
         ),
       })}
     >
-      <Tabs.Screen name="home" options={{ title: "Home", tabBarAccessibilityLabel: "Home tab" }} />
-      <Tabs.Screen name="paths" options={{ title: "Paths", tabBarAccessibilityLabel: "Paths tab" }} />
-      <Tabs.Screen name="mentor" options={{ title: "Mentor", tabBarAccessibilityLabel: "Mentor tab" }} />
-      <Tabs.Screen name="progress" options={{ title: "Progress", tabBarAccessibilityLabel: "Progress tab" }} />
+      <Tabs.Screen
+        name="home"
+        options={{ title: "Home", tabBarAccessibilityLabel: "Home tab" }}
+      />
+      <Tabs.Screen
+        name="paths"
+        options={{ title: "Paths", tabBarAccessibilityLabel: "Paths tab" }}
+      />
+      <Tabs.Screen
+        name="mentor"
+        options={{ title: "Mentor", tabBarAccessibilityLabel: "Mentor tab" }}
+      />
+      <Tabs.Screen
+        name="progress"
+        options={{
+          title: "Progress",
+          tabBarAccessibilityLabel: "Progress tab",
+        }}
+      />
     </Tabs>
   );
 }

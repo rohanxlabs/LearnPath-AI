@@ -856,7 +856,7 @@ const styles = StyleSheet.create({
   scrollContent: { flexGrow: 1, paddingBottom: spacing.xxl },
   content: {
     width: "100%",
-    maxWidth: layout.maxContentWidth,
+    maxWidth: layout.maxReadingWidth,
     alignSelf: "center",
     gap: spacing.lg,
   },
@@ -919,7 +919,12 @@ const styles = StyleSheet.create({
   generatingText: { flex: 1 },
   contentSection: { gap: spacing.md },
   contentSectionTitle: { marginBottom: -spacing.xs },
-  lessonBody: { gap: spacing.md },
+  lessonBody: {
+    gap: spacing.md,
+    maxWidth: 640,
+    alignSelf: "center",
+    width: "100%",
+  },
   contentHeading: { marginTop: spacing.sm },
   paragraph: { fontSize: 16, lineHeight: 27, color: colors.text },
   bulletRow: {

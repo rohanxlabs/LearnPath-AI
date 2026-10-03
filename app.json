@@ -5,9 +5,13 @@
     "version": "1.0.0",
     "platforms": [
       "ios",
-      "android"
+      "android",
+      "web"
     ],
     "orientation": "portrait",
+    "web": {
+      "bundler": "metro"
+    },
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {

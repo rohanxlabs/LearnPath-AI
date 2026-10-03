@@ -9,6 +9,7 @@ type IconButtonProps = {
   onPress?: () => void;
   selected?: boolean;
   disabled?: boolean;
+  size?: "small" | "medium" | "large";
 };
 
 export function IconButton({
@@ -17,6 +18,7 @@ export function IconButton({
   onPress,
   selected = false,
   disabled = false,
+  size = "medium",
 }: IconButtonProps) {
   return (
     <Pressable
@@ -27,14 +29,28 @@ export function IconButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.base,
+        styles[size],
         selected && styles.selected,
-        pressed && styles.pressed,
+        pressed && !disabled && styles.pressed,
+        disabled && styles.disabled,
       ]}
     >
       <MaterialCommunityIcons
         name={icon}
-        size={22}
-        color={selected ? colors.primary : colors.textSecondary}
+        size={
+          size === "small"
+            ? layout.iconSmall
+            : size === "large"
+              ? layout.iconLarge
+              : layout.iconButton
+        }
+        color={
+          selected
+            ? colors.primary
+            : disabled
+              ? colors.textDisabled
+              : colors.textSecondary
+        }
       />
     </Pressable>
   );
@@ -48,6 +64,10 @@ const styles = StyleSheet.create({
     height: layout.iconButtonSize,
     borderRadius: radii.full,
   },
+  small: { width: 44, height: 44, borderRadius: radii.circle },
+  medium: { width: layout.iconButtonSize, height: layout.iconButtonSize },
+  large: { width: 56, height: 56, borderRadius: radii.circle },
   selected: { backgroundColor: colors.primarySoft },
   pressed: { opacity: 0.7 },
+  disabled: { opacity: 0.55 },
 });

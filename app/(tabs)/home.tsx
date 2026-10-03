@@ -10,6 +10,7 @@ import {
   ProgressBar,
   Screen,
   Typography,
+  TextLink,
 } from "../../components";
 import { useActivePath } from "../../providers/ActivePathProvider";
 import { useAuth } from "../../hooks/useAuth";
@@ -248,13 +249,16 @@ export default function HomeTab() {
               CONTINUE LEARNING
             </Typography>
           </View>
-          <Typography variant="heading" style={styles.pathTitle}>
+          <Typography variant="label" color={colors.textSecondary}>
             {pathTitle}
           </Typography>
           {nextLesson ? (
             <>
-              <Typography variant="bodyMedium">
+              <Typography variant="lessonSubheading" style={styles.lessonTitle}>
                 {recommendation?.target?.title ?? nextLesson.name}
+              </Typography>
+              <Typography variant="caption" color={colors.textSecondary}>
+                {nextLesson.phaseId ? "Current lesson" : "Next lesson"}
               </Typography>
               <Typography
                 variant="caption"
@@ -298,35 +302,14 @@ export default function HomeTab() {
               label={`${pathTitle}, ${Math.round(roadmap.progressPercent)} percent complete`}
             />
           </View>
-        </Card>
-      ) : null}
-
-      {roadmap && nextLesson ? (
-        <Card>
-          <View style={styles.actionEyebrow}>
-            <MaterialCommunityIcons
-              name="creation"
-              size={17}
-              color={colors.primary}
-            />
-            <Typography variant="label" color={colors.primary}>
-              RECOMMENDED NEXT ACTION
+          {actionReason ? (
+            <Typography
+              variant="caption"
+              color={colors.textSecondary}
+              style={styles.reason}
+            >
+              {actionReason}
             </Typography>
-          </View>
-          <Typography variant="bodyMedium">
-            {recommendation?.decision?.action === "reinforce" ||
-            recommendation?.decision?.action === "remediate"
-              ? "Revisit a concept"
-              : recommendation?.decision?.action === "advance"
-                ? "Move forward"
-                : "Keep learning"}
-          </Typography>
-          <Typography color={colors.textSecondary} style={styles.reason}>
-            {actionReason ??
-              "Continue with the next available lesson on your path."}
-          </Typography>
-          {recommendationStaleAt ? (
-            <CacheNotice savedAt={recommendationStaleAt} />
           ) : null}
           {recommendationLoading ? (
             <View style={styles.inlineLoading}>
@@ -342,6 +325,10 @@ export default function HomeTab() {
             </Typography>
           ) : null}
         </Card>
+      ) : null}
+
+      {recommendationStaleAt && roadmap ? (
+        <CacheNotice savedAt={recommendationStaleAt} />
       ) : null}
 
       {roadmap ? (
@@ -372,30 +359,18 @@ export default function HomeTab() {
       ) : null}
 
       <View style={styles.secondaryLinks}>
-        <Pressable
-          accessibilityRole="button"
+        <TextLink
+          label="View all paths"
           onPress={() => router.push("/(tabs)/paths" as never)}
-        >
-          <Typography variant="caption" color={colors.primary}>
-            View all paths
-          </Typography>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
+        />
+        <TextLink
+          label="Ask Mentor"
           onPress={() => router.push("/(tabs)/mentor" as never)}
-        >
-          <Typography variant="caption" color={colors.primary}>
-            Ask Mentor
-          </Typography>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
+        />
+        <TextLink
+          label="Progress"
           onPress={() => router.push("/(tabs)/progress" as never)}
-        >
-          <Typography variant="caption" color={colors.primary}>
-            Progress
-          </Typography>
-        </Pressable>
+        />
       </View>
       {!activePathReady && !bootstrapLoading ? (
         <Typography
@@ -449,6 +424,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.sm,
   },
   pathTitle: { marginBottom: spacing.sm },
+  lessonTitle: { marginTop: spacing.xs },
   lessonMeta: { marginTop: spacing.xs, marginBottom: spacing.md },
   progressLine: {
     borderTopColor: colors.border,

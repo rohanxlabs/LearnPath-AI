@@ -22,10 +22,11 @@ export function Chip({
       accessibilityState={{ disabled, selected }}
       disabled={disabled}
       onPress={onPress}
-      style={[
+      style={({ pressed }) => [
         styles.base,
         selected && styles.selected,
         disabled && styles.disabled,
+        pressed && !disabled && styles.pressed,
       ]}
     >
       <Text style={[styles.label, selected && styles.selectedLabel]}>
@@ -45,6 +46,7 @@ const styles = StyleSheet.create({
   },
   selected: { backgroundColor: colors.primary },
   disabled: { opacity: 0.45 },
+  pressed: { opacity: 0.78 },
   label: { ...typography.caption, color: colors.primaryDark },
   selectedLabel: { color: colors.surface },
 });

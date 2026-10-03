@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, typography } from "../theme/tokens";
+import { colors, radii, typography } from "../theme/tokens";
 
 type AvatarProps = { initials: string; label: string; size?: number };
 
@@ -11,7 +11,7 @@ export function Avatar({ initials, label, size = 48 }: AvatarProps) {
       accessibilityRole="image"
       style={[
         styles.base,
-        { width: size, height: size, borderRadius: size / 2 },
+        { width: size, height: size, borderRadius: radii.circle },
       ]}
     >
       <Text style={styles.initials}>{initials.slice(0, 2).toUpperCase()}</Text>

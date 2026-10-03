@@ -381,7 +381,6 @@ export default function ProgressTab() {
           ) : null}
           <Button
             label="Go to this lesson"
-            variant="secondary"
             disabled={!recommendationLesson}
             onPress={openRecommendedLesson}
           />

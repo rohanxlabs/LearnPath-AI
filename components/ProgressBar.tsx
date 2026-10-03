@@ -2,9 +2,17 @@ import { StyleSheet, View } from "react-native";
 
 import { colors, layout, radii } from "../theme/tokens";
 
-type ProgressBarProps = { value: number; label?: string };
+type ProgressBarProps = {
+  value: number;
+  label?: string;
+  tone?: "brand" | "success" | "warning";
+};
 
-export function ProgressBar({ value, label }: ProgressBarProps) {
+export function ProgressBar({
+  value,
+  label,
+  tone = "brand",
+}: ProgressBarProps) {
   const clampedValue = Math.min(1, Math.max(0, value));
   return (
     <View
@@ -15,7 +23,9 @@ export function ProgressBar({ value, label }: ProgressBarProps) {
       accessibilityValue={{ max: 1, min: 0, now: clampedValue }}
       style={styles.track}
     >
-      <View style={[styles.fill, { width: `${clampedValue * 100}%` }]} />
+      <View
+        style={[styles.fill, styles[tone], { width: `${clampedValue * 100}%` }]}
+      />
     </View>
   );
 }
@@ -30,6 +40,8 @@ const styles = StyleSheet.create({
   fill: {
     height: "100%",
     borderRadius: radii.full,
-    backgroundColor: colors.primary,
   },
+  brand: { backgroundColor: colors.primary },
+  success: { backgroundColor: colors.success },
+  warning: { backgroundColor: colors.warning },
 });

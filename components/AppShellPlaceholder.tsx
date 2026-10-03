@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
 import { Button, Card, Screen, Typography } from "./index";
-import { colors, radii, spacing } from "../theme/tokens";
+import { colors, layout, radii, spacing } from "../theme/tokens";
 
 type AppShellPlaceholderProps = {
   title: string;
@@ -18,7 +18,7 @@ export function AppShellPlaceholder({ title, icon }: AppShellPlaceholderProps) {
         <View style={styles.iconCircle}>
           <MaterialCommunityIcons
             name={icon}
-            size={30}
+            size={layout.iconHero}
             color={colors.primary}
           />
         </View>

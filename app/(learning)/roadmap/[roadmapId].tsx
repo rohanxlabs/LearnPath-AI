@@ -7,9 +7,9 @@ import {
   Button,
   CacheNotice,
   Card,
-  IconButton,
   ProgressBar,
   Screen,
+  ScreenHeader,
   Typography,
 } from "../../../components";
 import { useAuth } from "../../../hooks/useAuth";
@@ -364,17 +364,16 @@ export default function RoadmapScreen() {
 
   return (
     <Screen scroll contentContainerStyle={styles.screenContent}>
-      <View style={styles.topBar}>
-        <IconButton
-          icon="arrow-left"
-          label="Back to paths"
-          onPress={() => router.back()}
-        />
-        <Typography variant="caption" color={colors.textSecondary}>
-          LEARNING ROADMAP
-        </Typography>
-        <View style={styles.topBarSpacer} />
-      </View>
+      <ScreenHeader
+        title={roadmap?.title ?? "Learning roadmap"}
+        subtitle={
+          roadmap && roadmap.goal && roadmap.goal !== roadmap.title
+            ? roadmap.goal
+            : undefined
+        }
+        onBack={() => router.back()}
+        backLabel="Back to paths"
+      />
 
       {loading ? (
         <Card>
@@ -417,10 +416,6 @@ export default function RoadmapScreen() {
 
       {!loading && !error && roadmap ? (
         <>
-          <Typography variant="heading">{roadmap.title}</Typography>
-          {roadmap.goal && roadmap.goal !== roadmap.title ? (
-            <Typography color={colors.textSecondary}>{roadmap.goal}</Typography>
-          ) : null}
           <Card>
             <View style={styles.progressHeading}>
               <View style={styles.progressIcon}>
@@ -447,7 +442,7 @@ export default function RoadmapScreen() {
           </Card>
 
           {nextLesson ? (
-            <Card>
+            <Card variant="selected" accessibilityLabel="Your next lesson">
               <View style={styles.nextEyebrow}>
                 <MaterialCommunityIcons
                   name="creation"
