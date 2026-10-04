@@ -192,7 +192,6 @@ function PhaseCard({
                       style={[
                         styles.lessonRow,
                         recommended && styles.recommendedLesson,
-                        disabled && styles.lockedLesson,
                       ]}
                     >
                       <MaterialCommunityIcons
@@ -623,7 +622,7 @@ const styles = StyleSheet.create({
   },
   journeyRail: {
     position: "absolute",
-    left: 18,
+    left: 38 / 2 - 2 / 2, // (markerWidth / 2) - (railWidth / 2) = 19 - 1 = 18
     top: 48,
     bottom: -spacing.md,
     width: 2,
@@ -694,7 +693,7 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: colors.primary,
   },
-  lockedLesson: { opacity: 0.6 },
+
   lessonCopy: { flex: 1, gap: 2 },
   emptyCopy: { marginVertical: spacing.md },
 });
