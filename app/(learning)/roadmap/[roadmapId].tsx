@@ -9,7 +9,6 @@ import {
   Card,
   ProgressBar,
   Screen,
-  ScreenHeader,
   Typography,
 } from "../../../components";
 import { useAuth } from "../../../hooks/useAuth";
@@ -32,7 +31,7 @@ type NextActionResponse = {
 function lessonStatus(lessonStatus: string, isRecommended: boolean) {
   if (lessonStatus === "completed")
     return {
-      icon: "check-circle",
+      icon: "check-circle-outline",
       label: "Completed",
       color: colors.success,
     } as const;
@@ -43,9 +42,9 @@ function lessonStatus(lessonStatus: string, isRecommended: boolean) {
     lessonStatus === "in_progress"
   ) {
     return {
-      icon: isRecommended ? "play-circle" : "circle-outline",
+      icon: isRecommended ? "play-circle-outline" : "circle-outline",
       label: isRecommended ? "Recommended" : "Ready",
-      color: colors.primary,
+      color: isRecommended ? colors.primaryDark : colors.primary,
     } as const;
   }
   return {
@@ -81,18 +80,6 @@ function PhaseCard({
     phase.status === "locked" ||
     (lessons.length > 0 &&
       lessons.every((lesson) => lesson.status === "locked"));
-  const icon = complete
-    ? "check"
-    : locked
-      ? "lock"
-      : expanded
-        ? "circle-slice-8"
-        : "circle-outline";
-  const iconColor = complete
-    ? colors.success
-    : locked
-      ? colors.textMuted
-      : colors.primary;
 
   return (
     <View style={styles.phaseShell}>
@@ -104,11 +91,21 @@ function PhaseCard({
           locked && styles.phaseMarkerLocked,
         ]}
       >
-        <MaterialCommunityIcons
-          name={icon}
-          size={18}
-          color={complete ? colors.surface : iconColor}
-        />
+        {complete ? (
+          <MaterialCommunityIcons
+            name="check"
+            size={18}
+            color={colors.surface}
+          />
+        ) : locked ? (
+          <MaterialCommunityIcons
+            name="lock-outline"
+            size={16}
+            color={colors.textMuted}
+          />
+        ) : (
+          <Typography style={styles.phaseNumber}>{index + 1}</Typography>
+        )}
       </View>
       <View style={styles.phaseContent}>
         <Pressable
@@ -327,7 +324,7 @@ export default function RoadmapScreen() {
       setError(
         cause instanceof Error
           ? cause.message
-          : "Your roadmap couldn’t load. Please try again.",
+          : "Your roadmap couldn't load. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -364,16 +361,21 @@ export default function RoadmapScreen() {
 
   return (
     <Screen scroll contentContainerStyle={styles.screenContent}>
-      <ScreenHeader
-        title={roadmap?.title ?? "Learning roadmap"}
-        subtitle={
-          roadmap && roadmap.goal && roadmap.goal !== roadmap.title
-            ? roadmap.goal
-            : undefined
-        }
-        onBack={() => router.back()}
-        backLabel="Back to paths"
-      />
+      {/* Custom Header */}
+      <View style={styles.customHeader}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back to paths"
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={22} color={colors.ink} />
+        </Pressable>
+        <View style={styles.headerCopy}>
+          <Typography variant="label" style={styles.eyebrow}>LEARNING PATH</Typography>
+          <Typography style={styles.roadmapTitle}>{roadmap?.title ?? 'Loading\u2026'}</Typography>
+        </View>
+      </View>
 
       {loading ? (
         <Card>
@@ -395,7 +397,7 @@ export default function RoadmapScreen() {
               color={colors.error}
             />
             <Typography variant="bodyMedium" style={styles.errorText}>
-              Your path couldn’t load
+              Your path could not load
             </Typography>
           </View>
           <Typography
@@ -416,13 +418,14 @@ export default function RoadmapScreen() {
 
       {!loading && !error && roadmap ? (
         <>
-          <Card>
-            <View style={styles.progressHeading}>
+          {/* Progress Card */}
+          <View style={styles.progressCard}>
+            <View style={styles.progressRow}>
               <View style={styles.progressIcon}>
                 <MaterialCommunityIcons
                   name="chart-timeline-variant"
-                  size={21}
-                  color={colors.primary}
+                  size={22}
+                  color={colors.primaryDark}
                 />
               </View>
               <View style={styles.progressCopy}>
@@ -431,7 +434,7 @@ export default function RoadmapScreen() {
                   {completed} of {lessonCount} lessons complete
                 </Typography>
               </View>
-              <Typography variant="title" color={colors.primary}>
+              <Typography style={styles.progressPercent}>
                 {Math.round(roadmap.progressPercent)}%
               </Typography>
             </View>
@@ -439,40 +442,39 @@ export default function RoadmapScreen() {
               value={roadmap.progressPercent / 100}
               label={`${roadmap.title} ${Math.round(roadmap.progressPercent)} percent complete`}
             />
-          </Card>
+          </View>
 
+          {/* Next Step Card */}
           {nextLesson ? (
-            <Card variant="selected" accessibilityLabel="Your next lesson">
+            <View style={styles.nextCard} accessibilityLabel="Your next lesson">
               <View style={styles.nextEyebrow}>
                 <MaterialCommunityIcons
                   name="creation"
-                  size={17}
-                  color={colors.primary}
+                  size={15}
+                  color={colors.ink}
                 />
-                <Typography variant="label" color={colors.primary}>
+                <Typography variant="label" style={styles.nextEyebrowText}>
                   YOUR NEXT STEP
                 </Typography>
               </View>
-              <Typography variant="title" style={styles.nextTitle}>
+              <Typography style={styles.nextTitle}>
                 {recommendedTitle || nextLesson.name}
               </Typography>
-              <Typography
-                variant="caption"
-                color={colors.textSecondary}
-                style={styles.nextReason}
-              >
+              <Typography variant="caption" style={styles.nextMeta}>
                 {recommendationReason ||
                   `About ${nextLesson.estimatedMinutes} minutes · ${nextLesson.xpReward} XP`}
               </Typography>
               <Button
                 label="Continue this lesson"
+                variant="dark"
                 onPress={() => openLesson(nextLesson.id, nextLesson.status)}
               />
-            </Card>
+            </View>
           ) : null}
 
+          {/* Your Journey Section */}
           <View style={styles.journeyHeading}>
-            <Typography variant="title">Your journey</Typography>
+            <Typography style={styles.journeyTitle}>Your journey</Typography>
             <Typography variant="caption" color={colors.textSecondary}>
               Open a phase to see its lessons.
             </Typography>
@@ -519,13 +521,35 @@ export default function RoadmapScreen() {
 
 const styles = StyleSheet.create({
   screenContent: { gap: spacing.md, paddingBottom: spacing.xl },
-  topBar: {
+  customHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: spacing.xs,
+    gap: 12,
+    paddingVertical: 8,
   },
-  topBarSpacer: { width: 48 },
+  backButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.surfaceSubtle,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerCopy: {
+    flex: 1,
+    gap: spacing.xs,
+  },
+  eyebrow: {
+    color: colors.primaryDark,
+    letterSpacing: 1,
+  },
+  roadmapTitle: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: colors.ink,
+    letterSpacing: -0.2,
+    lineHeight: 34,
+  },
   loading: {
     minHeight: 100,
     flexDirection: "row",
@@ -536,28 +560,60 @@ const styles = StyleSheet.create({
   errorHeading: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
   errorText: { color: colors.error },
   errorCopy: { marginTop: spacing.sm, marginBottom: spacing.md },
-  progressHeading: {
+  progressCard: {
+    backgroundColor: colors.surfaceSubtle,
+    borderRadius: radii.card,
+    padding: spacing.lg,
+    gap: spacing.md,
+  },
+  progressRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
-    marginBottom: spacing.lg,
   },
   progressIcon: {
-    width: 42,
-    height: 42,
-    alignItems: "center",
-    justifyContent: "center",
+    width: 44,
+    height: 44,
     borderRadius: radii.md,
     backgroundColor: colors.primarySoft,
+    alignItems: "center",
+    justifyContent: "center",
   },
   progressCopy: { flex: 1, gap: 2 },
+  progressPercent: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: colors.primaryDark,
+  },
+  nextCard: {
+    backgroundColor: colors.primary,
+    borderRadius: radii.card,
+    padding: spacing.lg,
+    gap: spacing.sm,
+  },
   nextEyebrow: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
-  nextTitle: { marginTop: spacing.sm },
-  nextReason: { marginTop: spacing.xs, marginBottom: spacing.md },
+  nextEyebrowText: { color: colors.ink },
+  nextTitle: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: colors.ink,
+    lineHeight: 32,
+    letterSpacing: -0.2,
+    marginTop: spacing.xs,
+  },
+  nextMeta: {
+    color: "rgba(14,14,18,0.65)",
+    marginBottom: spacing.sm,
+  },
   journeyHeading: {
     gap: spacing.xs,
     marginTop: spacing.md,
     marginBottom: spacing.sm,
+  },
+  journeyTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: colors.ink,
   },
   phaseShell: {
     flexDirection: "row",
@@ -567,40 +623,39 @@ const styles = StyleSheet.create({
   },
   journeyRail: {
     position: "absolute",
-    left: 16,
-    top: 34,
+    left: 18,
+    top: 48,
     bottom: -spacing.md,
     width: 2,
     backgroundColor: colors.border,
   },
   phaseMarker: {
-    zIndex: 1,
-    width: 34,
-    height: 34,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
-    borderColor: colors.primary,
-    borderRadius: radii.full,
-    backgroundColor: colors.background,
-    marginTop: spacing.sm,
+    backgroundColor: colors.primary,
+    zIndex: 1,
+    marginTop: 10,
   },
   phaseMarkerComplete: {
-    borderColor: colors.success,
     backgroundColor: colors.success,
   },
   phaseMarkerLocked: {
+    backgroundColor: colors.surfaceSubtle,
+    borderWidth: 1.5,
     borderColor: colors.borderStrong,
-    backgroundColor: colors.background,
+  },
+  phaseNumber: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.ink,
   },
   phaseContent: {
     flex: 1,
     marginBottom: spacing.md,
     padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.lg,
-    backgroundColor: colors.surface,
   },
   phaseHeader: {
     minHeight: 54,
@@ -634,8 +689,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
     borderRadius: radii.md,
   },
-  recommendedLesson: { backgroundColor: colors.primaryTint },
-  lockedLesson: { opacity: 0.75 },
+  recommendedLesson: {
+    backgroundColor: colors.primaryTint,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+  },
+  lockedLesson: { opacity: 0.6 },
   lessonCopy: { flex: 1, gap: 2 },
   emptyCopy: { marginVertical: spacing.md },
 });
