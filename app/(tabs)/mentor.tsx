@@ -17,6 +17,7 @@ import { Button, Card, Typography } from "../../components";
 import { useAuth } from "../../hooks/useAuth";
 import { ApiError, apiRequest } from "../../lib/api";
 import { asList, asRecord, asText } from "../../lib/learning";
+import { useActivePath } from "../../providers/ActivePathProvider";
 import { colors, layout, radii, spacing } from "../../theme/tokens";
 
 type Message = { id: string; sender: "user" | "assistant"; text: string };
@@ -55,6 +56,10 @@ export default function MentorTab() {
     ? params.lessonName[0]
     : params.lessonName;
   const { session, bootstrap } = useAuth();
+  const {
+    activeRoadmapId: storedActiveRoadmapId,
+    ready: activePathReady,
+  } = useActivePath();
   const accessToken = session?.access_token;
   const pathOptions = useMemo<PathOption[]>(
     () =>
@@ -86,11 +91,14 @@ export default function MentorTab() {
   const [quotaMessage, setQuotaMessage] = useState<string | null>(null);
   const [offlineReply, setOfflineReply] = useState(false);
   const [routeContextDismissed, setRouteContextDismissed] = useState(false);
+  const [manualContextSelected, setManualContextSelected] = useState(false);
 
   const activeRoadmapId =
     routeRoadmapId && !routeContextDismissed
       ? routeRoadmapId
-      : selectedRoadmapId;
+      : manualContextSelected
+        ? selectedRoadmapId
+        : selectedRoadmapId || (activePathReady ? storedActiveRoadmapId ?? "" : "");
   const activeLessonId =
     activeRoadmapId === routeRoadmapId && !routeContextDismissed
       ? routeLessonId
@@ -279,49 +287,58 @@ export default function MentorTab() {
           <View style={styles.avatar}>
             <MaterialCommunityIcons
               name="message-question-outline"
-              size={23}
-              color={colors.primary}
+              size={29}
+              color={colors.ink}
             />
           </View>
           <View style={styles.headerText}>
-            <Typography variant="title">AI Mentor</Typography>
-            <Typography variant="caption" color={colors.textSecondary}>
+            <Typography variant="sectionHeading" style={styles.headerTitle}>AI Mentor</Typography>
+            <Typography color={colors.textSecondary} style={styles.headerSubtitle}>
               A guide for your next learning step
             </Typography>
           </View>
-          <View style={styles.onlineDot} />
+          <View style={styles.onlineStatus}>
+            <View style={styles.onlineDot} />
+            <Typography variant="bodyMedium" color={colors.success} style={styles.onlineText}>
+              Online
+            </Typography>
+          </View>
         </View>
         <View style={styles.contextArea}>
           {activeRoadmapId ? (
             <View style={styles.contextChip}>
               <MaterialCommunityIcons
                 name="map-marker-path"
-                size={16}
-                color={colors.primary}
+                size={21}
+                color={colors.primaryDark}
               />
               <Typography
-                variant="caption"
+                variant="bodyMedium"
                 color={colors.primaryDark}
                 numberOfLines={1}
                 style={styles.flexText}
               >
                 {selectedPath?.title ?? "Learning path"}
-                {mentorContext?.lesson ? ` · ${mentorContext.lesson.name}` : ""}
+                {mentorContext?.lesson?.name || activeLessonName
+                  ? ` · ${mentorContext?.lesson?.name || activeLessonName}`
+                  : ""}
               </Typography>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Clear learning path context"
                 hitSlop={10}
+                style={styles.contextClose}
                 onPress={() => {
                   setSelectedRoadmapId("");
                   setRouteContextDismissed(true);
+                  setManualContextSelected(true);
                   setRoadmapData(null);
                 }}
               >
                 <MaterialCommunityIcons
-                  name="close-circle"
-                  size={18}
-                  color={colors.textMuted}
+                  name="close"
+                  size={22}
+                  color={colors.primaryDark}
                 />
               </Pressable>
             </View>
@@ -340,8 +357,10 @@ export default function MentorTab() {
                 <Pressable
                   key={path.id}
                   accessibilityRole="button"
+                  accessibilityLabel={`Use ${path.title} for Mentor context`}
                   onPress={() => {
                     setRouteContextDismissed(true);
+                    setManualContextSelected(true);
                     setSelectedRoadmapId(path.id);
                   }}
                   style={styles.pathOption}
@@ -376,11 +395,13 @@ export default function MentorTab() {
               <View style={styles.welcomeIcon}>
                 <MaterialCommunityIcons
                   name="creation"
-                  size={25}
-                  color={colors.primary}
+                  size={31}
+                  color={colors.ink}
                 />
               </View>
-              <Typography variant="heading">What are you learning?</Typography>
+              <Typography variant="display" style={styles.welcomeTitle}>
+                What are you learning?
+              </Typography>
               <Typography
                 color={colors.textSecondary}
                 style={styles.welcomeCopy}
@@ -394,16 +415,17 @@ export default function MentorTab() {
                   <Pressable
                     key={item}
                     accessibilityRole="button"
+                    accessibilityLabel={`Ask Mentor: ${item}`}
                     onPress={() => void send(item)}
                     style={styles.suggestion}
                   >
-                    <Typography variant="caption" color={colors.primaryDark}>
+                    <Typography variant="bodyMedium" style={styles.suggestionText}>
                       {item}
                     </Typography>
                     <MaterialCommunityIcons
                       name="arrow-up-right"
-                      size={16}
-                      color={colors.primary}
+                      size={23}
+                      color={colors.primaryDark}
                     />
                   </Pressable>
                 ))}
@@ -535,47 +557,53 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: layout.screenPadding,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.lg,
     gap: spacing.md,
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: radii.full,
+    width: 64,
+    height: 64,
+    borderRadius: radii.xl,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.primary,
   },
-  headerText: { flex: 1 },
+  headerText: { flex: 1, gap: 1 },
+  headerTitle: { fontSize: 24, lineHeight: 29 },
+  headerSubtitle: { fontSize: 16, lineHeight: 23 },
+  onlineStatus: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+  onlineText: { fontSize: 15 },
   onlineDot: {
-    width: 9,
-    height: 9,
+    width: 10,
+    height: 10,
     borderRadius: radii.full,
     backgroundColor: colors.success,
   },
   contextArea: {
     paddingHorizontal: layout.screenPadding,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.smPlus,
     gap: spacing.sm,
     borderBottomColor: colors.border,
     borderBottomWidth: 1,
   },
   contextChip: {
     flexDirection: "row",
-    gap: spacing.sm,
+    minHeight: 60,
+    gap: spacing.smPlus,
     alignItems: "center",
     backgroundColor: colors.primaryTint,
     borderRadius: radii.full,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
   },
+  contextClose: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
   pathOptions: { gap: spacing.sm },
   pathOption: {
     maxWidth: 250,
-    minHeight: 40,
+    minHeight: 44,
     flexDirection: "row",
     gap: spacing.xs,
     alignItems: "center",
@@ -588,28 +616,30 @@ const styles = StyleSheet.create({
   pathLabel: { maxWidth: 205 },
   chat: { flex: 1 },
   chatContent: { flexGrow: 1, padding: layout.screenPadding, gap: spacing.md },
-  welcome: { flex: 1, justifyContent: "center", gap: spacing.md },
+  welcome: { flex: 1, justifyContent: "center", gap: spacing.mdPlus },
   welcomeIcon: {
-    width: 52,
-    height: 52,
+    width: 64,
+    height: 64,
     borderRadius: radii.lg,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.primarySoft,
   },
-  welcomeCopy: { lineHeight: 23 },
-  suggestions: { gap: spacing.sm, marginTop: spacing.sm },
+  welcomeTitle: { fontSize: 36, lineHeight: 42, letterSpacing: -0.6 },
+  welcomeCopy: { fontSize: 18, lineHeight: 28 },
+  suggestions: { gap: spacing.smPlus, marginTop: spacing.sm },
   suggestion: {
-    minHeight: 48,
+    minHeight: 64,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: spacing.md,
-    borderWidth: 1,
+    paddingHorizontal: spacing.lg,
+    borderWidth: 1.5,
     borderColor: colors.border,
     backgroundColor: colors.surface,
-    borderRadius: radii.md,
+    borderRadius: radii.xl,
   },
+  suggestionText: { fontSize: 17, lineHeight: 24, flex: 1 },
   messageRow: { width: "100%" },
   userRow: { alignItems: "flex-end" },
   assistantRow: { alignItems: "flex-start" },
@@ -636,18 +666,20 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     maxHeight: 120,
-    minHeight: layout.inputHeight,
+    minHeight: 60,
     borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: radii.lg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.md,
+    borderColor: colors.border,
+    borderRadius: radii.full,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.mdPlus,
+    backgroundColor: colors.surfaceSubtle,
     color: colors.text,
     fontSize: 16,
+    fontFamily: "Outfit_400Regular",
   },
   sendButton: {
-    width: 48,
-    height: 48,
+    width: 60,
+    height: 60,
     borderRadius: radii.full,
     alignItems: "center",
     justifyContent: "center",

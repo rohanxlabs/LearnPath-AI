@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 
 import {
   Button,
@@ -15,6 +15,14 @@ import { useAuth } from "../../hooks/useAuth";
 import { apiRequest } from "../../lib/api";
 import { asRecord, asText } from "../../lib/learning";
 import { colors, radii, spacing } from "../../theme/tokens";
+
+function getInitials(displayName: string, email: string) {
+  const source = displayName.trim() || email.split("@")[0] || "Learner";
+  const words = source.split(/\s+/).filter(Boolean);
+  return words.length > 1
+    ? `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase()
+    : source.slice(0, 2).toUpperCase();
+}
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -33,6 +41,12 @@ export default function ProfileScreen() {
     );
     return () => clearTimeout(task);
   }, [profile.displayName, profile.name]);
+
+  useEffect(() => {
+    if (!saved) return;
+    const task = setTimeout(() => setSaved(false), 3500);
+    return () => clearTimeout(task);
+  }, [saved]);
 
   const save = async () => {
     if (!session?.access_token) return;
@@ -76,26 +90,28 @@ export default function ProfileScreen() {
       <View style={styles.top}>
         <IconButton
           icon="arrow-left"
-          label="Back"
+          label="Go back"
           onPress={() => router.back()}
         />
-        <Typography variant="heading">Profile</Typography>
+        <Typography variant="screenTitle">Profile</Typography>
         <View style={styles.spacer} />
       </View>
-      <Card>
+      <Card variant="outlined" style={styles.profileCard}>
         <View style={styles.identity}>
           <View style={styles.avatar}>
-            <MaterialCommunityIcons
-              name="account-outline"
-              size={25}
-              color={colors.primary}
-            />
+            <Typography
+              variant="heading"
+              color={colors.ink}
+              style={styles.avatarText}
+            >
+              {getInitials(displayName, user?.email ?? "")}
+            </Typography>
           </View>
           <View style={styles.identityCopy}>
-            <Typography variant="bodyMedium">
+            <Typography variant="bodyMedium" style={styles.email}>
               {user?.email ?? "Signed-in learner"}
             </Typography>
-            <Typography variant="caption" color={colors.textSecondary}>
+            <Typography variant="bodySmall" color={colors.textSecondary}>
               Your LearnPath account
             </Typography>
           </View>
@@ -107,6 +123,7 @@ export default function ProfileScreen() {
           placeholder="How should we greet you?"
           maxLength={80}
           autoCapitalize="words"
+          style={styles.nameInput}
         />
         <Button
           label="Save profile"
@@ -115,9 +132,16 @@ export default function ProfileScreen() {
           disabled={!displayName.trim()}
         />
         {saved ? (
-          <Typography variant="caption" color={colors.success}>
-            Profile saved.
-          </Typography>
+          <View style={styles.savedRow}>
+            <MaterialCommunityIcons
+              name="check"
+              size={20}
+              color={colors.success}
+            />
+            <Typography variant="bodyMedium" color={colors.success}>
+              Profile saved.
+            </Typography>
+          </View>
         ) : null}
         {error ? (
           <Typography
@@ -130,6 +154,8 @@ export default function ProfileScreen() {
         ) : null}
       </Card>
       <Card
+        variant="outlined"
+        style={styles.preferenceCard}
         onPress={() => router.push("/(learning)/settings" as never)}
         accessibilityLabel="Open learning preferences"
       >
@@ -154,7 +180,7 @@ export default function ProfileScreen() {
           />
         </View>
       </Card>
-      <Card>
+      <Card variant="outlined" style={styles.accountCard}>
         <Typography variant="bodyMedium">Account</Typography>
         <Typography
           variant="caption"
@@ -165,12 +191,33 @@ export default function ProfileScreen() {
           is available from the sign-in screen. Account deletion is not
           currently available in the app.
         </Typography>
-        <Button
-          label="Sign out"
-          variant="secondary"
+        <Pressable
+          accessibilityLabel="Sign out"
+          accessibilityRole="button"
+          accessibilityState={{ busy: signingOut, disabled: signingOut }}
+          disabled={signingOut}
           onPress={() => void leave()}
-          loading={signingOut}
-        />
+          style={({ pressed }) => [
+            styles.signOutButton,
+            pressed && styles.signOutPressed,
+            signingOut && styles.signOutDisabled,
+          ]}
+        >
+          {signingOut ? (
+            <ActivityIndicator color={colors.ink} />
+          ) : (
+            <>
+              <MaterialCommunityIcons
+                name="logout-variant"
+                size={22}
+                color={colors.ink}
+              />
+              <Typography variant="button" color={colors.ink}>
+                Sign out
+              </Typography>
+            </>
+          )}
+        </Pressable>
       </Card>
     </Screen>
   );
@@ -178,28 +225,38 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   content: { gap: spacing.md, paddingBottom: spacing.xl },
+  profileCard: { borderRadius: radii.card, padding: spacing.xl },
+  preferenceCard: { borderRadius: radii.card, paddingVertical: spacing.mdPlus },
+  accountCard: { borderRadius: radii.card, padding: spacing.xl },
   top: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
   spacer: { width: 48 },
-  identity: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  identity: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
   avatar: {
-    width: 48,
-    height: 48,
+    width: 102,
+    height: 102,
     borderRadius: radii.full,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.primary,
   },
+  email: { fontSize: 20, lineHeight: 25 },
+  avatarText: { fontSize: 34, lineHeight: 40 },
   identityCopy: { flex: 1, gap: 3 },
   linkRow: { flexDirection: "row", alignItems: "center", gap: spacing.md },
   linkIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: radii.md,
+    width: 56,
+    height: 56,
+    borderRadius: radii.lg,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.primarySoft,
@@ -207,6 +264,32 @@ const styles = StyleSheet.create({
   accountText: {
     marginTop: spacing.sm,
     marginBottom: spacing.md,
-    lineHeight: 21,
+    lineHeight: 27,
+  },
+  nameInput: {
+    minHeight: 60,
+    borderWidth: 0,
+    borderRadius: radii.full,
+    backgroundColor: colors.surfaceSubtle,
+    paddingHorizontal: spacing.lg,
+    fontSize: 18,
+  },
+  signOutButton: {
+    minHeight: 60,
+    borderRadius: radii.full,
+    backgroundColor: colors.surfaceSubtle,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  signOutPressed: { opacity: 0.78 },
+  signOutDisabled: { opacity: 0.55 },
+  savedRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+    marginTop: spacing.md,
   },
 });

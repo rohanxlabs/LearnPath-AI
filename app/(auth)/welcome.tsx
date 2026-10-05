@@ -4,7 +4,7 @@ import { StyleSheet, View } from "react-native";
 import { AuthError, AuthScreen } from "../../components/auth/AuthScreen";
 import { Button, Card, Typography } from "../../components";
 import { useAuth } from "../../hooks/useAuth";
-import { spacing } from "../../theme/tokens";
+import { colors, spacing } from "../../theme/tokens";
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -14,7 +14,7 @@ export default function WelcomeScreen() {
       {authConfigError ? <AuthError message={authConfigError} /> : null}
       <Card>
         <Typography variant="bodyMedium">Your goal becomes a learning path</Typography>
-        <Typography color="#686575" style={styles.body}>
+        <Typography color={colors.textSecondary} style={styles.body}>
           Lessons, practice, and progress stay connected as you learn.
         </Typography>
         <View style={styles.actions}>

@@ -72,6 +72,10 @@ function parseQuestions(value: unknown): Question[] {
     );
 }
 
+function isCodeOption(option: string) {
+  return /[`"'=()[\]{}]|=>|==/.test(option);
+}
+
 export default function QuizScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{
@@ -338,25 +342,26 @@ export default function QuizScreen() {
           <ScrollView contentContainerStyle={styles.content}>
             {!attempt.finished ? (
               <>
-                <Typography variant="title">{quiz.title}</Typography>
-                <Typography variant="caption" color={colors.textSecondary}>
-                  Question {questionIndex + 1} of {quiz.questions.length}
-                </Typography>
-                <Typography variant="caption" color={colors.textMuted}>
-                  {Math.round(
-                    ((questionIndex + (answeredCurrent ? 1 : 0)) /
-                      quiz.questions.length) *
-                      100,
-                  )}
-                  % through practice
-                </Typography>
+                <Typography variant="lessonTitle">{lessonName ?? quiz.title}</Typography>
+                <View style={styles.progressMeta}>
+                  <Typography variant="body" color={colors.textSecondary}>
+                    Question {questionIndex + 1} of {quiz.questions.length}
+                  </Typography>
+                  <Typography variant="body" color={colors.textSecondary}>
+                    {Math.round(
+                      ((questionIndex + 1) / quiz.questions.length) * 100,
+                    )}
+                    % through practice
+                  </Typography>
+                </View>
                 <ProgressBar
-                  value={questionIndex / quiz.questions.length}
+                  value={(questionIndex + 1) / quiz.questions.length}
+                  thick
                   label={`Question ${questionIndex + 1} of ${quiz.questions.length}`}
                 />
                 {current ? (
-                  <Card>
-                    <Typography variant="heading">
+                  <Card variant="outlined">
+                    <Typography variant="lessonHeading" style={styles.questionText}>
                       {current.question}
                     </Typography>
                     <View style={styles.options}>
@@ -378,37 +383,58 @@ export default function QuizScreen() {
                               styles.option,
                               selected === index && !reveal && styles.selected,
                               reveal &&
-                                isAnswer &&
-                                (isCorrect ? styles.correct : styles.incorrect),
+                                (isCorrect
+                                  ? styles.correct
+                                  : isAnswer
+                                    ? styles.incorrect
+                                    : null),
                             ]}
                           >
-                            <View
+                            <View style={[
+                              styles.badge,
+                              reveal && isCorrect
+                                ? styles.correctBadge
+                                : reveal && isAnswer
+                                  ? styles.incorrectBadge
+                                  : selected === index
+                                    ? styles.selectedBadge
+                                    : null,
+                            ]}>
+                              <Typography
+                                variant="bodyMedium"
+                                color={
+                                  reveal && (isCorrect || isAnswer)
+                                    ? colors.surface
+                                    : colors.textSecondary
+                                }
+                              >
+                                {String.fromCharCode(65 + index)}
+                              </Typography>
+                            </View>
+                            <Typography
                               style={[
-                                styles.radio,
-                                selected === index && styles.radioSelected,
+                                styles.optionText,
+                                isCodeOption(option) && styles.codeOptionText,
                               ]}
                             >
-                              {reveal && isAnswer ? (
-                                <MaterialCommunityIcons
-                                  name={isCorrect ? "check" : "close"}
-                                  size={17}
-                                  color={
-                                    isCorrect ? colors.success : colors.error
-                                  }
-                                />
-                              ) : null}
-                            </View>
-                            <Typography style={styles.optionText}>
                               {option}
                             </Typography>
+                            {reveal && (isCorrect || isAnswer) ? (
+                              <MaterialCommunityIcons
+                                name={isCorrect ? "check-circle-outline" : "close-circle-outline"}
+                                size={25}
+                                color={isCorrect ? colors.success : colors.error}
+                              />
+                            ) : null}
                           </Pressable>
                         );
                       })}
                     </View>
                     {answeredCurrent ? (
                       <View style={styles.explanation}>
+                        <View style={styles.feedbackDivider} />
                         <Typography
-                          variant="bodyMedium"
+                          variant="sectionTitle"
                           color={
                             attempt.answers[current.id] === current.correctIndex
                               ? colors.success
@@ -456,7 +482,7 @@ export default function QuizScreen() {
                     onPress={() => void answer()}
                   />
                 )}
-                <Typography variant="caption" color={colors.textMuted}>
+                <Typography variant="caption" color={colors.textMuted} style={styles.disclaimer}>
                   Answers are checked in the app. Your score is sent to
                   LearnPath as learning evidence when it syncs.
                 </Typography>
@@ -465,16 +491,12 @@ export default function QuizScreen() {
               <>
                 <View style={styles.resultIcon}>
                   <MaterialCommunityIcons
-                    name={
-                      score === quiz.questions.length
-                        ? "star-four-points"
-                        : "school-outline"
-                    }
-                    size={28}
-                    color={colors.primary}
+                    name="trending-up"
+                    size={34}
+                    color={colors.ink}
                   />
                 </View>
-                <Typography variant="heading">
+                <Typography variant="lessonTitle" style={styles.resultHeading}>
                   {score === quiz.questions.length
                     ? "Excellent work"
                     : score === 0
@@ -510,10 +532,17 @@ export default function QuizScreen() {
                     />
                   </Card>
                 ) : (
-                  <Card>
-                    <Typography variant="bodyMedium" color={colors.success}>
-                      Learning evidence saved
-                    </Typography>
+                  <Card variant="subtle">
+                    <View style={styles.resultCardHeader}>
+                      <MaterialCommunityIcons
+                        name="check-circle-outline"
+                        size={24}
+                        color={colors.success}
+                      />
+                      <Typography variant="bodyMedium" color={colors.success}>
+                        Learning evidence saved
+                      </Typography>
+                    </View>
                     <Typography variant="caption" color={colors.textSecondary}>
                       LearnPath can use this result to calibrate your next
                       learning step.
@@ -523,11 +552,14 @@ export default function QuizScreen() {
                 {attempt.recorded &&
                 recommendation?.target?.lessonId &&
                 roadmapId ? (
-                  <Card>
+                  <Card variant="selected">
                     <Typography variant="label" color={colors.primary}>
                       RECOMMENDED NEXT STEP
                     </Typography>
-                    <Typography variant="bodyMedium" style={styles.copy}>
+                    <Typography
+                      variant="sectionTitle"
+                      style={styles.recommendationTitle}
+                    >
                       {recommendation.target.title ??
                         "Continue your learning path"}
                     </Typography>
@@ -541,6 +573,7 @@ export default function QuizScreen() {
                     </Typography>
                     <Button
                       label="Go to recommended lesson"
+                      variant="dark"
                       onPress={() =>
                         router.replace({
                           pathname: "/(learning)/lesson/[lessonId]",
@@ -561,29 +594,55 @@ export default function QuizScreen() {
                     </Typography>
                   </View>
                 ) : null}
+                <Typography variant="sectionHeading" style={styles.answersHeading}>
+                  Your answers
+                </Typography>
                 {quiz.questions.map((question, index) => (
-                  <Card key={question.id}>
+                  <View
+                    key={question.id}
+                    style={[
+                      styles.answerCard,
+                      attempt.answers[question.id] !== question.correctIndex &&
+                        styles.answerCardIncorrect,
+                    ]}
+                  >
                     <Typography variant="label" color={colors.textSecondary}>
                       QUESTION {index + 1}
                     </Typography>
-                    <Typography variant="bodyMedium" style={styles.copy}>
+                    <Typography variant="bodyMedium" style={styles.answerQuestion}>
                       {question.question}
                     </Typography>
-                    <Typography
-                      color={
-                        attempt.answers[question.id] === question.correctIndex
-                          ? colors.success
-                          : colors.error
-                      }
-                    >
-                      {attempt.answers[question.id] === question.correctIndex
-                        ? "Correct"
-                        : `Your answer: ${question.options[attempt.answers[question.id]] ?? "Not answered"}`}
-                    </Typography>
+                    <View style={styles.answerStatus}>
+                      <MaterialCommunityIcons
+                        name={
+                          attempt.answers[question.id] === question.correctIndex
+                            ? "check"
+                            : "close"
+                        }
+                        size={18}
+                        color={
+                          attempt.answers[question.id] === question.correctIndex
+                            ? colors.success
+                            : colors.error
+                        }
+                      />
+                      <Typography
+                        variant="bodyMedium"
+                        color={
+                          attempt.answers[question.id] === question.correctIndex
+                            ? colors.success
+                            : colors.error
+                        }
+                      >
+                        {attempt.answers[question.id] === question.correctIndex
+                          ? "Correct"
+                          : `Your answer: ${question.options[attempt.answers[question.id]] ?? "Not answered"}`}
+                      </Typography>
+                    </View>
                     <Typography variant="caption" color={colors.textSecondary}>
                       {question.explanation}
                     </Typography>
-                  </Card>
+                  </View>
                 ))}
                 {score === quiz.questions.length && roadmapId ? (
                   <Button
@@ -636,21 +695,32 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", gap: spacing.md },
   content: {
     flexGrow: 1,
-    gap: spacing.md,
-    paddingTop: spacing.md,
+    gap: spacing.lg,
+    paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
   },
   copy: { marginTop: spacing.sm, marginBottom: spacing.md },
-  options: { gap: spacing.sm, marginTop: spacing.lg },
+  progressMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: -spacing.md,
+  },
+  questionText: {
+    fontSize: 28,
+    lineHeight: 36,
+  },
+  options: { gap: spacing.md, marginTop: spacing.lg },
   option: {
-    minHeight: 56,
+    minHeight: 62,
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radii.md,
-    padding: spacing.md,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   selected: {
     borderColor: colors.primary,
@@ -658,25 +728,74 @@ const styles = StyleSheet.create({
   },
   correct: { borderColor: colors.success, backgroundColor: colors.successSoft },
   incorrect: { borderColor: colors.error, backgroundColor: colors.errorSoft },
-  radio: {
-    width: 24,
-    height: 24,
+  badge: {
+    width: 40,
+    height: 40,
     borderRadius: radii.full,
-    borderWidth: 1.5,
-    borderColor: colors.borderStrong,
+    backgroundColor: colors.surfaceSubtle,
     alignItems: "center",
     justifyContent: "center",
   },
-  radioSelected: { borderColor: colors.primary },
+  selectedBadge: { backgroundColor: colors.primary },
+  correctBadge: { backgroundColor: colors.success },
+  incorrectBadge: { backgroundColor: colors.error },
   optionText: { flex: 1 },
+  codeOptionText: {
+    fontFamily: "monospace",
+    fontSize: 18,
+  },
   explanation: { marginTop: spacing.lg, gap: spacing.sm },
+  feedbackDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginBottom: spacing.sm,
+  },
+  disclaimer: {
+    textAlign: "center",
+    paddingHorizontal: spacing.lg,
+  },
   resultIcon: {
-    width: 60,
-    height: 60,
+    width: 70,
+    height: 70,
     borderRadius: radii.full,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.primarySoft,
+  },
+  resultHeading: { marginTop: -spacing.sm },
+  resultCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  recommendationTitle: {
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  answersHeading: {
+    marginTop: spacing.md,
+    marginBottom: -spacing.sm,
+  },
+  answerQuestion: {
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
+  },
+  answerStatus: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
+  },
+  answerCard: {
+    padding: spacing.lg,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  answerCardIncorrect: {
+    borderColor: "#E8B8B8",
   },
   recommendationLoading: {
     flexDirection: "row",

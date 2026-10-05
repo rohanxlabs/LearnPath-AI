@@ -9,7 +9,8 @@ type ButtonVariant =
   | "tertiary"
   | "ghost"
   | "quiet"
-  | "destructive";
+  | "destructive"
+  | "dark";
 type ButtonSize = "small" | "medium" | "large";
 
 type ButtonProps = {
@@ -32,6 +33,28 @@ export function Button({
   accessibilityHint,
 }: ButtonProps) {
   const isDisabled = disabled || loading;
+  
+  const getStyles = (pressed: boolean) => {
+    const baseStyles: any[] = [
+      styles.base,
+      styles[size],
+      styles[variant],
+    ];
+    
+    if (pressed && !isDisabled) {
+      const pressedKey = `${variant}Pressed` as keyof typeof styles;
+      if (styles[pressedKey]) {
+        baseStyles.push(styles[pressedKey]);
+      }
+    }
+    
+    if (isDisabled) {
+      baseStyles.push(styles.disabled);
+    }
+    
+    return baseStyles;
+  };
+  
   return (
     <Pressable
       accessibilityHint={accessibilityHint}
@@ -40,20 +63,18 @@ export function Button({
       accessibilityState={{ busy: loading, disabled: isDisabled }}
       disabled={isDisabled}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.base,
-        styles[size],
-        styles[variant],
-        pressed &&
-          !isDisabled &&
-          (variant === "primary" ? styles.primaryPressed : styles.pressed),
-        isDisabled && styles.disabled,
-      ]}
+      style={({ pressed }) => getStyles(pressed)}
     >
       {loading ? (
         <ActivityIndicator
           color={
-            variant === "primary" ? colors.surface : colors.primary
+            variant === "primary"
+              ? colors.onAccent
+              : variant === "dark"
+                ? colors.surface
+                : variant === "secondary"
+                  ? colors.ink
+                  : colors.primary
           }
         />
       ) : (
@@ -62,9 +83,13 @@ export function Button({
             styles.label,
             variant === "primary"
               ? styles.primaryLabel
-              : variant === "destructive"
-                ? styles.destructiveLabel
-                : styles.secondaryLabel,
+              : variant === "dark"
+                ? styles.darkLabel
+                : variant === "secondary"
+                  ? styles.secondaryLabel
+                  : variant === "destructive"
+                    ? styles.destructiveLabel
+                    : styles.defaultLabel,
           ]}
         >
           {label}
@@ -80,13 +105,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minHeight: layout.buttonHeightMedium,
     paddingHorizontal: spacing.lg,
-    borderRadius: radii.md,
+    borderRadius: radii.pill,
   },
   small: { minHeight: layout.buttonHeightSmall, paddingHorizontal: spacing.md },
   medium: { minHeight: layout.buttonHeightMedium },
   large: { minHeight: layout.buttonHeightLarge, paddingHorizontal: spacing.xl },
   primary: { backgroundColor: colors.primary },
-  secondary: { backgroundColor: colors.primarySoft },
+  secondary: { backgroundColor: colors.surfaceSubtle },
+  dark: { backgroundColor: colors.ink },
   outline: {
     backgroundColor: colors.surface,
     borderWidth: 1,
@@ -97,10 +123,18 @@ const styles = StyleSheet.create({
   tertiary: { backgroundColor: "transparent" },
   destructive: { backgroundColor: colors.errorSoft },
   label: { ...typography.button },
-  primaryLabel: { color: colors.surface },
-  secondaryLabel: { color: colors.primaryDark },
+  primaryLabel: { color: colors.onAccent },
+  secondaryLabel: { color: colors.ink },
+  darkLabel: { color: colors.surface },
+  defaultLabel: { color: colors.primaryDark },
   destructiveLabel: { color: colors.error },
   primaryPressed: { backgroundColor: colors.primaryPressed, opacity: 1 },
-  pressed: { opacity: 0.82 },
+  secondaryPressed: { backgroundColor: "#E4E6ED", opacity: 1 },
+  darkPressed: { backgroundColor: "#000000", opacity: 1 },
+  outlinePressed: { opacity: 0.82 },
+  ghostPressed: { opacity: 0.82 },
+  quietPressed: { opacity: 0.82 },
+  tertiaryPressed: { opacity: 0.82 },
+  destructivePressed: { opacity: 0.82 },
   disabled: { opacity: 0.45 },
 });

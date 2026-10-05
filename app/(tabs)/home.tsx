@@ -57,6 +57,7 @@ export default function HomeTab() {
     () => (bootstrap?.roadmaps ?? []).map(normalizeRoadmap),
     [bootstrap?.roadmaps],
   );
+  const showEmptyHome = !bootstrapLoading && roadmaps.length === 0;
   const selectedRoadmap = roadmaps.find(
     (roadmap) => roadmap.id === activeRoadmapId,
   );
@@ -148,25 +149,45 @@ export default function HomeTab() {
       : `${Number(profile.streak) || 0} day learning streak`;
 
   return (
-    <Screen scroll contentContainerStyle={styles.screen}>
-      <View style={styles.header}>
-        <View style={styles.brandText}>
-          <Typography variant="caption" color={colors.textSecondary}>
-            WELCOME BACK
-          </Typography>
-          <Typography variant="heading">Hi, {displayName}</Typography>
+    <Screen scroll contentContainerStyle={showEmptyHome ? styles.emptyHomeScreen : styles.screen}>
+      {showEmptyHome ? (
+        <View style={styles.emptyHeader}>
+          <View style={styles.homeBrandIcon}>
+            <MaterialCommunityIcons name="school-outline" size={29} color={colors.ink} />
+          </View>
+          <View style={styles.emptyBrandCopy}>
+            <Typography variant="title" style={styles.brandTitle}>LearnPath</Typography>
+            <Typography color={colors.textSecondary}>Your learning companion</Typography>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Open profile"
+            onPress={() => router.push("/(learning)/profile" as never)}
+            style={styles.emptyProfileButton}
+          >
+            <MaterialCommunityIcons name="account-outline" size={27} color={colors.ink} />
+          </Pressable>
         </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Open your profile"
-          onPress={() => router.push("/(learning)/profile" as never)}
-          style={styles.profileButton}
-        >
-          <Typography variant="bodyMedium" color={colors.primary}>
-            {displayName.slice(0, 1).toUpperCase()}
-          </Typography>
-        </Pressable>
-      </View>
+      ) : (
+        <View style={styles.header}>
+          <View style={styles.brandText}>
+            <Typography variant="caption" color={colors.textSecondary}>
+              WELCOME BACK
+            </Typography>
+            <Typography variant="heading">Hi, {displayName}</Typography>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Open your profile"
+            onPress={() => router.push("/(learning)/profile" as never)}
+            style={styles.profileButton}
+          >
+            <Typography variant="bodyMedium" color={colors.primary}>
+              {displayName.slice(0, 1).toUpperCase()}
+            </Typography>
+          </Pressable>
+        </View>
+      )}
 
       {bootstrapStale ? (
         <CacheNotice savedAt={bootstrapSavedAt ?? undefined} />
@@ -217,24 +238,76 @@ export default function HomeTab() {
         </Card>
       ) : null}
 
-      {!bootstrapLoading && roadmaps.length === 0 ? (
-        <Card>
-          <View style={styles.emptyIcon}>
-            <MaterialCommunityIcons
-              name="map-outline"
-              size={27}
-              color={colors.primary}
-            />
+      {showEmptyHome ? (
+        <View style={styles.emptyHomeContent}>
+          <View style={styles.emptyIntro}>
+            <Typography variant="display" style={styles.homeHeadline}>
+              Make your next step count.
+            </Typography>
+            <Typography color={colors.textSecondary} style={styles.homeSubtitle}>
+              Turn a learning goal into a path you can follow.
+            </Typography>
           </View>
-          <Typography variant="title">Start with a learning goal</Typography>
-          <Typography color={colors.textSecondary} style={styles.cardCopy}>
-            Build a path around something you want to understand or achieve.
-          </Typography>
-          <Button
-            label="Create a learning path"
-            onPress={() => router.push("/(onboarding)" as never)}
-          />
-        </Card>
+          <View style={styles.nextCard}>
+            <View style={styles.nextEyebrow}>
+              <MaterialCommunityIcons name="creation" size={19} color={colors.ink} />
+              <Typography variant="label" color={colors.ink} style={styles.nextLabel}>YOUR NEXT</Typography>
+            </View>
+            <Typography variant="title" style={styles.nextTitle}>Start with a goal</Typography>
+            <Typography style={styles.nextDescription}>
+              Lessons, practice and progress come together in one path.
+            </Typography>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Create a learning path"
+              onPress={() => router.push("/(onboarding)" as never)}
+              style={({ pressed }) => [styles.createPathButton, pressed && styles.pressed]}
+            >
+              <Typography variant="bodyStrong" color={colors.surface}>Create a learning path</Typography>
+              <MaterialCommunityIcons name="arrow-right" size={23} color={colors.surface} />
+            </Pressable>
+          </View>
+
+          <View style={styles.howSection}>
+            <Typography variant="sectionHeading">A simple way to learn</Typography>
+            <View style={styles.learningSteps}>
+              {[
+                { icon: "crosshairs" as const, title: "Choose a goal", description: "Tell LearnPath what you want to learn." },
+                { icon: "map-outline" as const, title: "Get a clear path", description: "Build a sequence of phases and lessons." },
+                { icon: "school-outline" as const, title: "Learn and practice", description: "Study, check your understanding, keep moving." },
+              ].map((item, index) => (
+                <View key={item.title} style={styles.learningStep}>
+                  <View style={styles.stepIconColumn}>
+                    <View style={styles.learningStepIcon}>
+                      <MaterialCommunityIcons name={item.icon} size={24} color={colors.primaryDark} />
+                    </View>
+                    {index < 2 ? <View style={styles.stepConnector} /> : null}
+                  </View>
+                  <View style={styles.learningStepCopy}>
+                    <Typography variant="bodyStrong" style={styles.learningStepTitle}>{item.title}</Typography>
+                    <Typography color={colors.textSecondary}>{item.description}</Typography>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Open AI Mentor"
+            onPress={() => router.push("/(tabs)/mentor" as never)}
+            style={({ pressed }) => [styles.mentorCard, pressed && styles.pressed]}
+          >
+            <View style={styles.mentorIcon}>
+              <MaterialCommunityIcons name="message-question-outline" size={27} color={colors.primaryDark} />
+            </View>
+            <View style={styles.mentorCopy}>
+              <Typography variant="bodyStrong" style={styles.mentorTitle}>Not sure where to begin?</Typography>
+              <Typography color={colors.textSecondary}>Talk it through with AI Mentor.</Typography>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={25} color={colors.textSecondary} />
+          </Pressable>
+        </View>
       ) : null}
 
       {roadmap ? (
@@ -358,7 +431,7 @@ export default function HomeTab() {
         </Pressable>
       ) : null}
 
-      <View style={styles.secondaryLinks}>
+      {!showEmptyHome ? <View style={styles.secondaryLinks}>
         <TextLink
           label="View all paths"
           onPress={() => router.push("/(tabs)/paths" as never)}
@@ -371,7 +444,7 @@ export default function HomeTab() {
           label="Progress"
           onPress={() => router.push("/(tabs)/progress" as never)}
         />
-      </View>
+      </View> : null}
       {!activePathReady && !bootstrapLoading ? (
         <Typography
           variant="caption"
@@ -387,6 +460,35 @@ export default function HomeTab() {
 
 const styles = StyleSheet.create({
   screen: { gap: spacing.md, paddingBottom: spacing.xl },
+  emptyHomeScreen: { gap: spacing.lg, paddingBottom: spacing.xl },
+  emptyHeader: { minHeight: 56, flexDirection: "row", alignItems: "center", gap: spacing.md },
+  homeBrandIcon: { width: 56, height: 56, alignItems: "center", justifyContent: "center", borderRadius: radii.full, backgroundColor: colors.primary },
+  emptyBrandCopy: { flex: 1, gap: 0 },
+  brandTitle: { fontSize: 22, lineHeight: 27 },
+  emptyProfileButton: { width: 56, height: 56, alignItems: "center", justifyContent: "center", borderRadius: radii.full, backgroundColor: colors.surfaceSubtle },
+  emptyHomeContent: { gap: spacing.xlPlus },
+  emptyIntro: { gap: spacing.sm },
+  homeHeadline: { fontSize: 34, lineHeight: 40, letterSpacing: -0.8 },
+  homeSubtitle: { fontSize: 17, lineHeight: 25 },
+  nextCard: { padding: spacing.lg, borderRadius: radii.xl, backgroundColor: colors.primary },
+  nextEyebrow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  nextLabel: { letterSpacing: 0.8 },
+  nextTitle: { marginTop: spacing.md, fontSize: 28, lineHeight: 34 },
+  nextDescription: { marginTop: spacing.sm, fontSize: 17, lineHeight: 25 },
+  createPathButton: { minHeight: 62, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: spacing.smPlus, marginTop: spacing.lg, paddingHorizontal: spacing.lg, borderRadius: radii.full, backgroundColor: colors.ink },
+  pressed: { opacity: 0.82 },
+  howSection: { gap: spacing.mdPlus },
+  learningSteps: { gap: 0 },
+  learningStep: { flexDirection: "row", alignItems: "stretch", gap: spacing.md },
+  stepIconColumn: { width: 52, alignItems: "center" },
+  learningStepIcon: { width: 48, height: 48, alignItems: "center", justifyContent: "center", borderRadius: radii.full, backgroundColor: colors.primarySoft },
+  stepConnector: { width: 2, height: spacing.lg, marginTop: spacing.xs, backgroundColor: colors.border },
+  learningStepCopy: { flex: 1, justifyContent: "center", paddingVertical: spacing.xs, gap: 2 },
+  learningStepTitle: { fontSize: 18, lineHeight: 23 },
+  mentorCard: { minHeight: 84, flexDirection: "row", alignItems: "center", gap: spacing.md, padding: spacing.md, borderWidth: 1.5, borderColor: colors.border, borderRadius: radii.xl, backgroundColor: colors.surface },
+  mentorIcon: { width: 56, height: 56, alignItems: "center", justifyContent: "center", borderRadius: radii.lg, backgroundColor: colors.primarySoft },
+  mentorCopy: { flex: 1, gap: 2 },
+  mentorTitle: { fontSize: 18, lineHeight: 24 },
   header: {
     flexDirection: "row",
     alignItems: "center",

@@ -47,6 +47,13 @@ type Recommendation = {
 const readable = (value: string) =>
   value.replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
+const formatEvidenceDate = (value: string) => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? ""
+    : date.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+};
+
 export default function ProgressTab() {
   const router = useRouter();
   const {
@@ -188,17 +195,17 @@ export default function ProgressTab() {
   return (
     <Screen scroll contentContainerStyle={styles.content}>
       <View style={styles.header}>
-        <View>
-          <Typography variant="label" color={colors.primary}>
+        <View style={styles.headerCopy}>
+          <Typography variant="label" color={colors.primaryDark} style={styles.eyebrow}>
             YOUR JOURNEY
           </Typography>
-          <Typography variant="heading">Progress</Typography>
+          <Typography variant="display" style={styles.screenTitle}>Progress</Typography>
         </View>
         <View style={styles.headerIcon}>
           <MaterialCommunityIcons
             name="chart-line"
-            size={22}
-            color={colors.primary}
+            size={25}
+            color={colors.ink}
           />
         </View>
       </View>
@@ -257,10 +264,10 @@ export default function ProgressTab() {
       ) : null}
 
       {roadmaps.length > 0 ? (
-        <Card>
+        <Card variant="subtle">
           <View style={styles.statsRow}>
             <View style={styles.stat}>
-              <Typography variant="heading">
+              <Typography variant="display" style={styles.statNumber}>
                 {Number(
                   stats?.lessonsCompleted ??
                     roadmaps.reduce(
@@ -269,26 +276,26 @@ export default function ProgressTab() {
                     ),
                 )}
               </Typography>
-              <Typography variant="caption" color={colors.textSecondary}>
+              <Typography variant="body" color={colors.textSecondary} style={styles.statLabel}>
                 lessons
               </Typography>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.stat}>
-              <Typography variant="heading">
+              <Typography variant="display" style={styles.statNumber}>
                 {Number(stats?.streak ?? asRecord(bootstrap?.profile).streak) ||
                   0}
               </Typography>
-              <Typography variant="caption" color={colors.textSecondary}>
+              <Typography variant="body" color={colors.textSecondary} style={styles.statLabel}>
                 day streak
               </Typography>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.stat}>
-              <Typography variant="heading">
+              <Typography variant="display" style={styles.statNumber}>
                 {Number(stats?.xp ?? asRecord(bootstrap?.profile).xp) || 0}
               </Typography>
-              <Typography variant="caption" color={colors.textSecondary}>
+              <Typography variant="body" color={colors.textSecondary} style={styles.statLabel}>
                 XP
               </Typography>
             </View>
@@ -306,24 +313,24 @@ export default function ProgressTab() {
       ) : null}
 
       {activeRoadmap ? (
-        <Card>
+        <Card variant="outlined">
           <View style={styles.pathHeader}>
             <View style={styles.pathIcon}>
               <MaterialCommunityIcons
                 name="map-marker-path"
                 size={20}
-                color={colors.primary}
+                color={colors.primaryDark}
               />
             </View>
             <View style={styles.flex}>
-              <Typography variant="label" color={colors.primary}>
+          <Typography variant="label" color={colors.primaryDark}>
                 ACTIVE PATH
               </Typography>
-              <Typography variant="bodyMedium">
+              <Typography variant="bodyMedium" numberOfLines={2}>
                 {activeRoadmap.title}
               </Typography>
             </View>
-            <Typography variant="caption" color={colors.textSecondary}>
+            <Typography variant="bodyMedium" color={colors.text} style={styles.pathPercent}>
               {Math.round(activeRoadmap.progressPercent)}%
             </Typography>
           </View>
@@ -333,6 +340,7 @@ export default function ProgressTab() {
           />
           <Pressable
             accessibilityRole="button"
+            accessibilityLabel={`Open ${activeRoadmap.title} path`}
             onPress={() =>
               router.push({
                 pathname: "/(learning)/roadmap/[roadmapId]",
@@ -341,31 +349,31 @@ export default function ProgressTab() {
             }
             style={styles.pathLink}
           >
-            <Typography variant="caption" color={colors.primary}>
+            <Typography variant="bodyMedium" color={colors.primaryDark}>
               Open this path
             </Typography>
             <MaterialCommunityIcons
               name="chevron-right"
               size={18}
-              color={colors.primary}
+              color={colors.primaryDark}
             />
           </Pressable>
         </Card>
       ) : null}
 
       {recommendation?.target?.lessonId && activeRoadmap ? (
-        <Card>
+        <View style={styles.nextStepCard}>
           <View style={styles.recommendationHeader}>
             <MaterialCommunityIcons
               name="lightbulb-on-outline"
               size={19}
-              color={colors.primary}
+              color={colors.ink}
             />
-            <Typography variant="label" color={colors.primary}>
+            <Typography variant="label" color={colors.ink} style={styles.nextStepLabel}>
               YOUR NEXT STEP
             </Typography>
           </View>
-          <Typography variant="bodyMedium">
+          <Typography variant="sectionHeading" style={styles.recommendationTitle}>
             {recommendation.target.title ?? "Continue learning"}
           </Typography>
           <Typography
@@ -379,16 +387,20 @@ export default function ProgressTab() {
           {loading ? (
             <ActivityIndicator size="small" color={colors.primary} />
           ) : null}
-          <Button
-            label="Go to this lesson"
-            disabled={!recommendationLesson}
-            onPress={openRecommendedLesson}
-          />
-        </Card>
+          <View style={styles.recommendationAction}>
+            <Button
+              label="Go to this lesson"
+              variant="dark"
+              size="medium"
+              disabled={!recommendationLesson}
+              onPress={openRecommendedLesson}
+            />
+          </View>
+        </View>
       ) : null}
 
       {activity.length > 0 ? (
-        <Card>
+        <Card variant="outlined">
           <SectionHeader title="Recent activity" />
           <View style={styles.activityChart}>
             {activity
@@ -403,20 +415,18 @@ export default function ProgressTab() {
                   <View
                     key={entry.date}
                     style={styles.activityDay}
+                    accessible
                     accessibilityLabel={`${entry.date}: ${Number(entry.lessonsCompleted) || 0} lessons completed, ${xp} XP`}
                   >
-                    <Typography variant="label" color={colors.textMuted}>
-                      {xp || Number(entry.lessonsCompleted) ? "●" : "·"}
-                    </Typography>
                     <View style={styles.barTrack}>
                       <View
                         style={[
                           styles.bar,
-                          { height: Math.max(6, (xp / maxDailyXp) * 50) },
+                          { height: Math.max(6, (xp / maxDailyXp) * 60) },
                         ]}
                       />
                     </View>
-                    <Typography variant="caption" color={colors.textMuted}>
+                    <Typography variant="caption" color={colors.textSecondary} style={styles.weekday}>
                       {label}
                     </Typography>
                   </View>
@@ -434,7 +444,9 @@ export default function ProgressTab() {
       ) : null}
 
       <View style={styles.sectionHeader}>
-        <SectionHeader title="Skills you’re building" />
+        <Typography variant="sectionHeading" style={styles.skillsTitle}>
+          Skills you&apos;re building
+        </Typography>
         <Typography variant="caption" color={colors.textMuted}>
           Estimates from learning evidence
         </Typography>
@@ -444,6 +456,7 @@ export default function ProgressTab() {
           <Pressable
             key={skill.skillKey}
             accessibilityRole="button"
+            accessibilityLabel={`View ${skill.skillName} skill details`}
             onPress={() =>
               router.push({
                 pathname: "/(learning)/skill/[skillKey]",
@@ -451,20 +464,20 @@ export default function ProgressTab() {
               } as never)
             }
           >
-            <Card>
+            <Card variant="outlined">
               <View style={styles.skillTop}>
                 <View style={styles.skillIcon}>
                   <MaterialCommunityIcons
                     name="brain"
                     size={18}
-                    color={colors.primary}
+                    color={colors.primaryDark}
                   />
                 </View>
                 <View style={styles.flex}>
-                  <Typography variant="bodyMedium">
+                  <Typography variant="bodyMedium" numberOfLines={1} style={styles.skillName}>
                     {skill.skillName}
                   </Typography>
-                  <Typography variant="caption" color={colors.textSecondary}>
+                  <Typography variant="caption" color={colors.textSecondary} numberOfLines={1}>
                     {readable(skill.proficiencyLevel)} ·{" "}
                     {readable(skill.confidenceLevel)} confidence
                   </Typography>
@@ -483,7 +496,7 @@ export default function ProgressTab() {
                 {skill.evidenceCount} evidence{" "}
                 {skill.evidenceCount === 1 ? "item" : "items"}
                 {skill.lastEvidenceAt
-                  ? ` · updated ${new Date(skill.lastEvidenceAt).toLocaleDateString()}`
+                  ? ` · updated ${formatEvidenceDate(skill.lastEvidenceAt)}`
                   : ""}
               </Typography>
             </Card>
@@ -502,18 +515,21 @@ export default function ProgressTab() {
 }
 
 const styles = StyleSheet.create({
-  content: { gap: spacing.md, paddingBottom: spacing.xl },
+  content: { gap: spacing.mdPlus, paddingBottom: spacing.xxl },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
+  headerCopy: { gap: spacing.xs },
+  eyebrow: { letterSpacing: 1 },
+  screenTitle: { fontSize: 38, lineHeight: 42, letterSpacing: -0.8 },
   headerIcon: {
-    width: 48,
-    height: 48,
+    width: 56,
+    height: 56,
     borderRadius: radii.full,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.primary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -540,8 +556,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   stat: { alignItems: "center", gap: 2, flex: 1 },
-  statDivider: { width: 1, height: 38, backgroundColor: colors.border },
-  studyTime: { textAlign: "center", marginTop: spacing.md },
+  statNumber: { fontSize: 34, lineHeight: 38, letterSpacing: -0.5 },
+  statLabel: { fontSize: 14, lineHeight: 19 },
+  statDivider: { width: 1, height: 48, backgroundColor: colors.borderStrong },
+  studyTime: { textAlign: "center", marginTop: spacing.md, fontSize: 14, lineHeight: 20 },
   pathHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -549,14 +567,15 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   pathIcon: {
-    width: 40,
-    height: 40,
+    width: 44,
+    height: 44,
     borderRadius: radii.md,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.primarySoft,
   },
-  flex: { flex: 1 },
+  flex: { flex: 1, minWidth: 0 },
+  pathPercent: { fontSize: 18, fontWeight: "700" },
   pathLink: {
     flexDirection: "row",
     alignItems: "center",
@@ -570,13 +589,22 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginBottom: spacing.sm,
   },
-  reason: { marginTop: spacing.xs, marginBottom: spacing.md, lineHeight: 21 },
+  nextStepCard: {
+    padding: spacing.lg,
+    gap: spacing.sm,
+    backgroundColor: colors.primary,
+    borderRadius: radii.xl,
+  },
+  nextStepLabel: { letterSpacing: 0.8 },
+  recommendationTitle: { fontSize: 23, lineHeight: 29, letterSpacing: -0.25 },
+  reason: { marginTop: spacing.xs, marginBottom: spacing.sm, lineHeight: 23, fontSize: 15 },
+  recommendationAction: { marginTop: spacing.xs },
   activityChart: {
-    height: 100,
+    height: 118,
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-around",
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
   },
   activityDay: {
     alignItems: "center",
@@ -586,23 +614,26 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   barTrack: {
-    height: 52,
-    width: 14,
+    height: 68,
+    width: 18,
     justifyContent: "flex-end",
     borderRadius: radii.full,
     backgroundColor: colors.primaryTint,
   },
-  bar: { width: 14, borderRadius: radii.full, backgroundColor: colors.primary },
-  activityCaption: { marginTop: spacing.md },
+  bar: { width: 18, borderRadius: radii.full, backgroundColor: colors.primaryDark },
+  weekday: { fontSize: 12, lineHeight: 17 },
+  activityCaption: { marginTop: spacing.md, fontSize: 14, lineHeight: 20 },
   sectionHeader: { gap: spacing.xs, marginTop: spacing.sm },
+  skillsTitle: { fontSize: 22, lineHeight: 27 },
   skillTop: { flexDirection: "row", alignItems: "center", gap: spacing.md },
   skillIcon: {
-    width: 38,
-    height: 38,
+    width: 48,
+    height: 48,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radii.full,
     backgroundColor: colors.primarySoft,
   },
-  evidence: { marginTop: spacing.md },
+  skillName: { fontSize: 17, lineHeight: 23 },
+  evidence: { marginTop: spacing.sm, fontSize: 13, lineHeight: 18, marginLeft: 48 + spacing.md },
 });

@@ -208,7 +208,7 @@ function PhaseCard({
                         </Typography>
                         <Typography
                           variant="caption"
-                          color={colors.textSecondary}
+                          color={disabled ? colors.textMuted : colors.textSecondary}
                         >
                           {recommended ? "Recommended next" : status.label}
                           {lesson.estimatedMinutes
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
   },
   nextMeta: {
-    color: "rgba(14,14,18,0.65)",
+    color: colors.textSecondary,
     marginBottom: spacing.sm,
   },
   journeyHeading: {

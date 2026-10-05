@@ -144,7 +144,12 @@ function LessonBody({ markdown }: { markdown: string }) {
     <View style={styles.lessonBody}>
       {blocks.map((block, index) => {
         if (block.type === "heading") {
-          const variant = block.level === 1 ? "heading" : "title";
+          const variant =
+            block.level === 1
+              ? "lessonHeading"
+              : block.level === 2
+                ? "sectionHeading"
+                : "lessonSubheading";
           return (
             <Typography
               key={index}
@@ -497,7 +502,7 @@ export default function LessonScreen() {
               </View>
               <Typography
                 accessibilityRole="header"
-                variant="heading"
+                variant="lessonTitle"
                 style={styles.lessonTitle}
               >
                 {lesson.name}
@@ -528,7 +533,7 @@ export default function LessonScreen() {
               </View>
 
               {objectives.length > 0 ? (
-                <Card>
+                <Card variant="subtle">
                   <Pressable
                     accessibilityRole="button"
                     accessibilityState={{ expanded: objectivesOpen }}
@@ -602,7 +607,7 @@ export default function LessonScreen() {
                 <LessonBody markdown={lesson.content} />
               </View>
 
-              <Card>
+              <Card variant="outlined">
                 <View style={styles.actionCardHeader}>
                   <View style={styles.resourceIcon}>
                     <MaterialCommunityIcons
@@ -634,7 +639,7 @@ export default function LessonScreen() {
               </Card>
 
               {lesson.project ? (
-                <Card>
+                <Card variant="subtle">
                   <Typography variant="label" color={colors.primary}>
                     PUT IT INTO PRACTICE
                   </Typography>
@@ -660,6 +665,7 @@ export default function LessonScreen() {
               ) : null}
 
               <Card
+                variant="outlined"
                 onPress={() =>
                   router.push({
                     pathname: "/(tabs)/mentor",
@@ -669,11 +675,13 @@ export default function LessonScreen() {
                 accessibilityLabel="Ask AI Mentor about this lesson"
               >
                 <View style={styles.actionCardHeader}>
-                  <MaterialCommunityIcons
-                    name="message-question-outline"
-                    size={22}
-                    color={colors.primary}
-                  />
+                  <View style={styles.actionIcon}>
+                    <MaterialCommunityIcons
+                      name="message-question-outline"
+                      size={20}
+                      color={colors.primaryDark}
+                    />
+                  </View>
                   <View style={styles.actionCopy}>
                     <Typography variant="bodyMedium">Need a hand?</Typography>
                     <Typography variant="caption" color={colors.textSecondary}>
@@ -754,7 +762,7 @@ export default function LessonScreen() {
               ) : null}
 
               {completion ? (
-                <Card>
+                <Card variant="outlined">
                   <View style={styles.completionHeader}>
                     <View style={styles.completionIcon}>
                       <MaterialCommunityIcons
@@ -858,7 +866,7 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: layout.maxReadingWidth,
     alignSelf: "center",
-    gap: spacing.lg,
+    gap: spacing.xl,
   },
   lessonEyebrow: {
     flexDirection: "row",
@@ -914,7 +922,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     padding: spacing.md,
     borderRadius: radii.md,
-    backgroundColor: colors.primaryTint,
+    backgroundColor: colors.primarySoft,
   },
   generatingText: { flex: 1 },
   contentSection: { gap: spacing.md },
@@ -945,18 +953,22 @@ const styles = StyleSheet.create({
     borderLeftWidth: 3,
     borderLeftColor: colors.primary,
     backgroundColor: colors.primaryTint,
-    borderRadius: radii.sm,
+    borderRadius: radii.md,
   },
   codeCard: {
-    borderRadius: radii.md,
-    backgroundColor: "#211F2B",
+    borderRadius: radii.lg,
+    backgroundColor: colors.surfaceSubtle,
     paddingVertical: spacing.md,
     gap: spacing.sm,
   },
-  codeLabel: { color: "#C8C2F5", paddingHorizontal: spacing.md },
+  codeLabel: {
+    color: colors.textSecondary,
+    paddingHorizontal: spacing.md,
+    letterSpacing: 1,
+  },
   codeScroll: { paddingHorizontal: spacing.md },
   codeText: {
-    color: "#F7F5FF",
+    color: colors.text,
     fontFamily: "monospace",
     fontSize: 14,
     lineHeight: 22,
@@ -968,8 +980,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.md,
     paddingHorizontal: spacing.md,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   resourceIcon: {
     width: 36,
@@ -985,6 +999,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.md,
     marginBottom: spacing.md,
+  },
+  actionIcon: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: radii.md,
+    backgroundColor: colors.primarySoft,
   },
   actionCopy: { flex: 1, gap: 3 },
   projectTitle: { marginTop: spacing.sm, marginBottom: spacing.sm },

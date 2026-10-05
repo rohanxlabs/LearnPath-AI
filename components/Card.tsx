@@ -1,5 +1,5 @@
 import { PropsWithChildren } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 
 import { colors, elevation, radii, spacing } from "../theme/tokens";
 
@@ -16,6 +16,7 @@ type CardProps = PropsWithChildren<{
   selected?: boolean;
   accessibilityLabel?: string;
   variant?: CardVariant;
+  style?: StyleProp<ViewStyle>;
 }>;
 
 export function Card({
@@ -24,9 +25,10 @@ export function Card({
   selected = false,
   accessibilityLabel,
   variant = "default",
+  style,
 }: CardProps) {
   const content = (
-    <View style={[styles.base, styles[variant], selected && styles.selected]}>
+    <View style={[styles.base, styles[variant], selected && styles.selected, style]}>
       {children}
     </View>
   );

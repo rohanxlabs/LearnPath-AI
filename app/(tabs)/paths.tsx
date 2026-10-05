@@ -1,36 +1,31 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 
 import {
   Button,
   CacheNotice,
   Card,
+  ProgressBar,
   Screen,
-  SectionHeader,
-  TextLink,
   Typography,
 } from "../../components";
 import { useAuth } from "../../hooks/useAuth";
 import type { BootstrapData } from "../../hooks/useAuth";
+import { asList, asRecord, asText, normalizeRoadmap } from "../../lib/learning";
 import { useActivePath } from "../../providers/ActivePathProvider";
 import { colors, radii, spacing } from "../../theme/tokens";
 
-type JsonRecord = Record<string, unknown>;
-const record = (value: unknown): JsonRecord =>
-  value && typeof value === "object" ? (value as JsonRecord) : {};
-const list = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
-const text = (value: unknown, fallback = ""): string =>
-  typeof value === "string" ? value : fallback;
-const percent = (value: unknown): number => {
-  const number = typeof value === "number" ? value : Number(value);
-  return Number.isFinite(number) ? Math.max(0, Math.min(100, number)) : 0;
-};
-
 export default function PathsTab() {
   const router = useRouter();
-  const { activeRoadmapId, setActiveRoadmapId } = useActivePath();
+  const { activeRoadmapId, setActiveRoadmapId, ready: activePathReady } =
+    useActivePath();
   const {
     bootstrap,
     bootstrapLoading,
@@ -40,35 +35,73 @@ export default function PathsTab() {
     refreshBootstrap,
   } = useAuth();
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const roadmaps = list((bootstrap as BootstrapData | null)?.roadmaps).map(
-    record,
+  const [settingActiveId, setSettingActiveId] = useState<string | null>(null);
+
+  const roadmaps = useMemo(
+    () =>
+      asList((bootstrap as BootstrapData | null)?.roadmaps).map(
+        normalizeRoadmap,
+      ),
+    [bootstrap],
   );
+  const selectedRoadmap = roadmaps.find((roadmap) => roadmap.id === activeRoadmapId);
+  const activeRoadmap =
+    selectedRoadmap ??
+    roadmaps.find((roadmap) => roadmap.status !== "completed") ??
+    roadmaps[0];
+
+  const openPath = (roadmapId: string) =>
+    router.push({
+      pathname: "/(learning)/roadmap/[roadmapId]",
+      params: { roadmapId },
+    } as never);
+
+  const setActive = async (roadmapId: string) => {
+    if (settingActiveId || roadmapId === activeRoadmap?.id) return;
+    setSettingActiveId(roadmapId);
+    try {
+      await setActiveRoadmapId(roadmapId);
+    } finally {
+      setSettingActiveId(null);
+    }
+  };
+
+  const toggleOverview = (roadmapId: string, isExpanded: boolean) =>
+    setExpandedId(isExpanded ? `collapsed:${roadmapId}` : roadmapId);
 
   return (
     <Screen scroll contentContainerStyle={styles.screenContent}>
       <View style={styles.header}>
         <View style={styles.headerCopy}>
-          <Typography variant="label" color={colors.primary}>
+          <Typography variant="label" color={colors.primaryDark} style={styles.eyebrow}>
             YOUR LEARNING
           </Typography>
-          <Typography variant="heading">Paths</Typography>
+          <Typography variant="display" style={styles.screenTitle}>
+            Paths
+          </Typography>
+          <Typography color={colors.textSecondary} style={styles.subtitle}>
+            Choose the goal you&apos;re actively building.
+          </Typography>
         </View>
-        <View style={styles.headerIcon}>
+        <View
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={styles.headerIcon}
+        >
           <MaterialCommunityIcons
-            name="map-marker-path"
-            size={23}
-            color={colors.primary}
+            name="transit-connection-variant"
+            size={31}
+            color={colors.ink}
           />
         </View>
       </View>
 
-      <SectionHeader title="My paths" subtitle="Choose the goal you’re actively building" />
       {bootstrapStale ? (
         <CacheNotice savedAt={bootstrapSavedAt ?? undefined} />
       ) : null}
 
       {bootstrapError ? (
-        <Card>
+        <Card variant="outlined">
           <View style={styles.errorRow}>
             <MaterialCommunityIcons
               name="cloud-alert-outline"
@@ -76,7 +109,7 @@ export default function PathsTab() {
               color={colors.error}
             />
             <Typography variant="bodyMedium" style={styles.errorText}>
-              Your paths couldn’t load
+              Your paths couldn&apos;t load
             </Typography>
           </View>
           <Typography
@@ -95,27 +128,23 @@ export default function PathsTab() {
       ) : null}
 
       {bootstrapLoading && roadmaps.length === 0 ? (
-        <Card>
+        <Card variant="outlined">
           <View style={styles.loadingRow}>
-            <MaterialCommunityIcons
-              name="loading"
-              size={21}
-              color={colors.primary}
-            />
+            <ActivityIndicator color={colors.primaryDark} />
             <Typography color={colors.textSecondary}>
-              Loading your paths…
+              Loading your paths�
             </Typography>
           </View>
         </Card>
       ) : null}
 
       {!bootstrapLoading && !bootstrapError && roadmaps.length === 0 ? (
-        <Card>
+        <Card variant="outlined">
           <View style={styles.emptyIllustration}>
             <MaterialCommunityIcons
-              name="map-outline"
+              name="transit-connection-variant"
               size={31}
-              color={colors.primary}
+              color={colors.primaryDark}
             />
           </View>
           <Typography variant="title" style={styles.emptyTitle}>
@@ -132,79 +161,75 @@ export default function PathsTab() {
         </Card>
       ) : null}
 
-      {roadmaps.map((roadmap, index) => {
-        const id = text(roadmap.id, `${index}`);
-        const active = id === activeRoadmapId;
+      {roadmaps.map((roadmap) => {
+        const active = roadmap.id === activeRoadmap?.id;
+        const expanded = expandedId === roadmap.id || (expandedId === null && active);
+        const progress = Math.round(roadmap.progressPercent);
+        const phases = roadmap.phases;
+
         return (
-          <Card
-            key={id}
-            selected={active}
-            onPress={() =>
-              router.push({
-                pathname: "/(learning)/roadmap/[roadmapId]",
-                params: { roadmapId: id },
-              } as never)
-            }
-            accessibilityLabel={`Open ${text(roadmap.title || roadmap.goal, "learning path")}`}
+          <View
+            key={roadmap.id}
+            style={[styles.pathCard, active ? styles.activeCard : styles.inactiveCard]}
           >
-            <View style={styles.pathCardTopline}>
-              <View style={styles.pathCardIcon}>
+            <View style={styles.pathHeader}>
+              <View style={[styles.pathIcon, !active && styles.inactiveIcon]}>
                 <MaterialCommunityIcons
-                  name="map-marker-path"
-                  size={18}
-                  color={active ? colors.primary : colors.textSecondary}
+                  name="transit-connection-variant"
+                  size={25}
+                  color={active ? colors.ink : colors.primaryDark}
                 />
               </View>
-              <View style={styles.pathCardBody}>
-                <Typography variant="label" color={active ? colors.primary : colors.textSecondary}>
+              <View style={styles.pathHeading}>
+                <Typography
+                  variant="label"
+                  color={active ? colors.primaryDark : colors.textSecondary}
+                  style={styles.cardEyebrow}
+                >
                   {active ? "ACTIVE PATH" : "PATH"}
                 </Typography>
-                <Typography variant="bodyMedium">
-                  {text(roadmap.title || roadmap.goal, "Untitled learning path")}
-                </Typography>
-                <Typography variant="caption" color={colors.textSecondary}>
-                  {Math.round(percent(roadmap.progressPercent ?? roadmap.progress))}% complete
+                <Typography variant="title" numberOfLines={2} style={styles.pathTitle}>
+                  {roadmap.title || asText(asRecord(roadmap).goal, "Learning path")}
                 </Typography>
               </View>
-              <MaterialCommunityIcons
-                name="chevron-right"
-                size={20}
-                color={colors.textMuted}
-              />
+              <Typography variant="sectionTitle" color={active ? colors.primaryDark : colors.textSecondary} style={styles.percentage}>
+                {progress}%
+              </Typography>
             </View>
-            <View style={styles.pathCardActions}>
-              <TextLink
-                label={active ? "Current path" : "Set active"}
-                onPress={() => void setActiveRoadmapId(id)}
-              />
-              <TextLink
-                label="Overview"
-                onPress={() => setExpandedId(expandedId === id ? null : id)}
-              />
-            </View>
-            {expandedId === id ? (
+
+            {active ? (
+              <View style={styles.progressWrap}>
+                <ProgressBar
+                  value={roadmap.progressPercent / 100}
+                  label={`${roadmap.title}, ${progress} percent complete`}
+                />
+              </View>
+            ) : null}
+
+            {expanded ? (
               <View style={styles.phaseList}>
-                {list(roadmap.phases).length ? (
-                  list(roadmap.phases).map((item, phaseIndex) => {
-                    const phase = record(item);
-                    const phaseName = text(phase.name, `Phase ${phaseIndex + 1}`);
-                    const modules = list(phase.levels ?? phase.modules);
-                    const lessons = modules.flatMap((module) => list(record(module).lessons));
+                {phases.length ? (
+                  phases.slice(0, 3).map((phase, index) => {
+                    const lessonCount = phase.modules.reduce(
+                      (total, module) => total + module.lessons.length,
+                      0,
+                    );
+                    const detail = lessonCount
+                      ? `${lessonCount} ${lessonCount === 1 ? "lesson" : "lessons"}`
+                      : `${phase.modules.length} ${phase.modules.length === 1 ? "module" : "modules"}`;
                     return (
-                      <View key={text(phase.id, `${phaseIndex}`)} style={styles.phaseRow}>
+                      <View key={phase.id || `${roadmap.id}-phase-${index}`} style={styles.phaseRow}>
                         <View style={styles.phaseNumber}>
-                          <Typography variant="caption" color={colors.primary}>
-                            {phaseIndex + 1}
+                          <Typography variant="bodyMedium" color={colors.primaryDark}>
+                            {index + 1}
                           </Typography>
                         </View>
-                        <View style={styles.phaseCopy}>
-                          <Typography variant="bodyMedium">{phaseName}</Typography>
-                          <Typography variant="caption" color={colors.textSecondary}>
-                            {lessons.length
-                              ? `${lessons.length} ${lessons.length === 1 ? "lesson" : "lessons"}`
-                              : `${modules.length} ${modules.length === 1 ? "module" : "modules"}`}
-                          </Typography>
-                        </View>
+                        <Typography variant="bodyMedium" numberOfLines={2} style={styles.phaseName}>
+                          {phase.name}
+                        </Typography>
+                        <Typography variant="caption" color={colors.textSecondary} style={styles.lessonCount}>
+                          {detail}
+                        </Typography>
                       </View>
                     );
                   })
@@ -215,22 +240,65 @@ export default function PathsTab() {
                 )}
               </View>
             ) : null}
-          </Card>
+
+            <View style={styles.actions}>
+              {active ? (
+                <View style={styles.primaryAction}>
+                  <Button
+                    label="Open path"
+                    variant="dark"
+                    size="large"
+                    onPress={() => openPath(roadmap.id)}
+                    accessibilityHint={`Open ${roadmap.title}`}
+                  />
+                </View>
+              ) : (
+                <View style={styles.primaryAction}>
+                  <Button
+                    label={settingActiveId === roadmap.id ? "Setting active" : "Set active"}
+                    variant="primary"
+                    size="large"
+                    disabled={settingActiveId !== null || !activePathReady}
+                    loading={settingActiveId === roadmap.id}
+                    onPress={() => void setActive(roadmap.id)}
+                    accessibilityHint={`Set ${roadmap.title} as active`}
+                  />
+                </View>
+              )}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${expanded ? "Hide" : "Show"} overview for ${roadmap.title}`}
+                accessibilityState={{ expanded }}
+                onPress={() => toggleOverview(roadmap.id, expanded)}
+                style={({ pressed }) => [styles.overviewButton, active ? styles.activeOverview : styles.inactiveOverview, pressed && styles.pressed]}
+              >
+                <Typography variant="bodyMedium" color={colors.primaryDark}>
+                  Overview
+                </Typography>
+                <MaterialCommunityIcons
+                  name={expanded ? "chevron-up" : "chevron-down"}
+                  size={22}
+                  color={colors.primaryDark}
+                />
+              </Pressable>
+            </View>
+          </View>
         );
       })}
 
       {roadmaps.length > 0 ? (
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel="Create another learning path"
           onPress={() => router.push("/(onboarding)" as never)}
-          style={styles.addPath}
+          style={({ pressed }) => [styles.addPath, pressed && styles.pressed]}
         >
           <MaterialCommunityIcons
-            name="plus-circle-outline"
-            size={22}
-            color={colors.primary}
+            name="plus"
+            size={24}
+            color={colors.primaryDark}
           />
-          <Typography variant="bodyMedium" color={colors.primary}>
+          <Typography variant="bodyMedium" color={colors.primaryDark}>
             Create another path
           </Typography>
         </Pressable>
@@ -240,93 +308,103 @@ export default function PathsTab() {
 }
 
 const styles = StyleSheet.create({
-  screenContent: { gap: spacing.md, paddingBottom: spacing.xl },
+  screenContent: { gap: spacing.lg, paddingBottom: spacing.xl },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: spacing.md,
+    marginBottom: spacing.md,
   },
-  headerCopy: { gap: spacing.xs },
+  headerCopy: { flex: 1, gap: spacing.xs },
+  eyebrow: { letterSpacing: 1 },
+  screenTitle: { fontSize: 42, lineHeight: 48, letterSpacing: -1 },
+  subtitle: { fontSize: 17, lineHeight: 25, marginTop: spacing.xs },
   headerIcon: {
-    width: 48,
-    height: 48,
+    width: 64,
+    height: 64,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radii.full,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.primary,
   },
-  intro: { marginTop: -spacing.xs, marginBottom: spacing.sm },
-  pathTopline: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  pathCard: {
+    padding: spacing.mdPlus,
+    borderWidth: 1.5,
+    borderRadius: 30,
+    gap: spacing.md,
+  },
+  activeCard: {
+    backgroundColor: colors.surfaceSelected,
+    borderColor: colors.primaryDark,
+    borderWidth: 2,
+  },
+  inactiveCard: {
+    backgroundColor: colors.surface,
+    borderColor: colors.border,
+  },
+  pathHeader: { flexDirection: "row", alignItems: "center", gap: spacing.md },
   pathIcon: {
-    width: 44,
-    height: 44,
+    width: 56,
+    height: 56,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: radii.md,
-    backgroundColor: colors.primarySoft,
+    borderRadius: radii.lg,
+    backgroundColor: colors.primary,
   },
-  pathTitleWrap: { flex: 1, gap: 2 },
-  pathTitle: { fontSize: 19, lineHeight: 25 },
-  goal: { marginTop: spacing.md },
-  progressMeta: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: spacing.lg,
-    marginBottom: spacing.sm,
-  },
-  pathFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: spacing.md,
-  },
-  pathActions: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+  inactiveIcon: { backgroundColor: colors.surfaceSubtle },
+  pathHeading: { flex: 1, gap: 1 },
+  cardEyebrow: { letterSpacing: 0.8 },
+  pathTitle: { fontSize: 21, lineHeight: 27 },
+  percentage: { alignSelf: "center", fontSize: 20 },
+  progressWrap: { marginTop: spacing.xs },
   phaseList: {
-    marginTop: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: "rgba(51, 71, 194, 0.10)",
     paddingTop: spacing.sm,
     gap: spacing.xs,
   },
-  phaseRow: {
-    minHeight: 56,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-  },
+  phaseRow: { minHeight: 56, flexDirection: "row", alignItems: "center", gap: spacing.md },
   phaseNumber: {
-    width: 32,
-    height: 32,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: radii.full,
-    backgroundColor: colors.primarySoft,
-  },
-  phaseCopy: { flex: 1, gap: 2 },
-  pathCardTopline: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-  },
-  pathCardIcon: {
     width: 40,
     height: 40,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: radii.md,
-    backgroundColor: colors.primarySoft,
+    borderRadius: radii.full,
+    backgroundColor: colors.surface,
   },
-  pathCardBody: { flex: 1, gap: 2 },
-  pathCardActions: {
+  phaseName: { flex: 1, fontSize: 17 },
+  lessonCount: { minWidth: 74, textAlign: "right", fontSize: 14 },
+  actions: { flexDirection: "row", alignItems: "center", gap: spacing.smPlus },
+  primaryAction: { flex: 1 },
+  overviewButton: {
+    minHeight: 54,
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "center",
+    gap: spacing.xs,
+    paddingHorizontal: spacing.smPlus,
+    borderRadius: radii.full,
+  },
+  activeOverview: { backgroundColor: colors.surface },
+  inactiveOverview: { backgroundColor: colors.surfaceSubtle },
+  pressed: { opacity: 0.82 },
+  addPath: {
+    minHeight: 68,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: spacing.sm,
-    marginTop: spacing.md,
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderColor: colors.borderStrong,
+    borderRadius: radii.full,
+    backgroundColor: colors.surface,
   },
   emptyIllustration: {
-    width: 60,
-    height: 60,
+    width: 64,
+    height: 64,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radii.full,
@@ -336,13 +414,6 @@ const styles = StyleSheet.create({
   },
   emptyTitle: { textAlign: "center" },
   emptyBody: { textAlign: "center", marginVertical: spacing.sm },
-  addPath: {
-    minHeight: 54,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.sm,
-  },
   loadingRow: {
     minHeight: 70,
     flexDirection: "row",

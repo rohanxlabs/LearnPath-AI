@@ -1,8 +1,9 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Redirect, Tabs } from "expo-router";
+import { StyleSheet, View } from "react-native";
 
 import { useAuth } from "../../hooks/useAuth";
-import { colors, layout, spacing, typography } from "../../theme/tokens";
+import { colors, spacing, typography } from "../../theme/tokens";
 
 const tabIcons = {
   home: "home-variant-outline",
@@ -21,24 +22,26 @@ export default function TabsLayout() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarHideOnKeyboard: true,
-        tabBarActiveTintColor: colors.primary,
+        tabBarActiveTintColor: colors.ink,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: typography.navigation,
         tabBarStyle: {
-          minHeight: layout.androidTouchTarget + 12,
+          minHeight: 80,
           paddingTop: spacing.sm,
           paddingBottom: spacing.sm,
           borderTopColor: colors.border,
           backgroundColor: colors.surface,
         },
-        tabBarIcon: ({ color, size }) => (
-          <MaterialCommunityIcons
-            accessibilityElementsHidden
-            importantForAccessibility="no-hide-descendants"
-            name={tabIcons[route.name as keyof typeof tabIcons]}
-            size={size}
-            color={color}
-          />
+        tabBarIcon: ({ color, size, focused }) => (
+          <View style={[styles.tabIconSlot, focused && styles.tabIconSelected]}>
+            <MaterialCommunityIcons
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+              name={tabIcons[route.name as keyof typeof tabIcons]}
+              size={focused ? 25 : size}
+              color={focused ? colors.ink : color}
+            />
+          </View>
         ),
       })}
     >
@@ -64,3 +67,14 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabIconSlot: {
+    width: 54,
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 999,
+  },
+  tabIconSelected: { backgroundColor: colors.primary },
+});

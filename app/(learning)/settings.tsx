@@ -44,7 +44,7 @@ function ChoiceRow<T extends string | number>({
 }) {
   return (
     <View style={styles.choiceGroup}>
-      <Typography variant="bodyMedium">{label}</Typography>
+      <Typography variant="sectionTitle">{label}</Typography>
       <View style={styles.options}>
         {options.map((option) => (
           <Pressable
@@ -54,8 +54,15 @@ function ChoiceRow<T extends string | number>({
             onPress={() => onChange(option)}
             style={[styles.option, value === option && styles.selected]}
           >
+            {value === option ? (
+              <MaterialCommunityIcons
+                name="check"
+                size={16}
+                color={colors.primaryDark}
+              />
+            ) : null}
             <Typography
-              variant="caption"
+              variant="bodyMedium"
               color={
                 value === option ? colors.primaryDark : colors.textSecondary
               }
@@ -113,6 +120,12 @@ export default function SettingsScreen() {
     preferences.weeklyHours,
   ]);
 
+  useEffect(() => {
+    if (!saved) return;
+    const task = setTimeout(() => setSaved(false), 3500);
+    return () => clearTimeout(task);
+  }, [saved]);
+
   const save = async () => {
     if (!session?.access_token) return;
     setSaving(true);
@@ -147,17 +160,19 @@ export default function SettingsScreen() {
       <View style={styles.top}>
         <IconButton
           icon="arrow-left"
-          label="Back"
+          label="Go back"
           onPress={() => router.back()}
         />
-        <Typography variant="heading">Learning preferences</Typography>
+        <Typography variant="screenTitle" style={styles.headerTitle}>
+          Learning preferences
+        </Typography>
         <View style={styles.spacer} />
       </View>
-      <Typography color={colors.textSecondary}>
+      <Typography variant="body" color={colors.textSecondary} style={styles.intro}>
         These choices can guide future learning paths. Change them whenever your
         schedule or experience changes.
       </Typography>
-      <Card>
+      <Card variant="outlined" style={styles.preferencesCard}>
         <ChoiceRow
           label="Your experience"
           options={experienceOptions}
@@ -195,13 +210,21 @@ export default function SettingsScreen() {
         </Typography>
         <Button
           label="Save preferences"
+          size="large"
           loading={saving}
           onPress={() => void save()}
         />
         {saved ? (
-          <Typography variant="caption" color={colors.success}>
-            Preferences saved.
-          </Typography>
+          <View style={styles.savedRow}>
+            <MaterialCommunityIcons
+              name="check"
+              size={19}
+              color={colors.success}
+            />
+            <Typography variant="bodyMedium" color={colors.success}>
+              Preferences saved.
+            </Typography>
+          </View>
         ) : null}
         {error ? (
           <Typography
@@ -213,7 +236,7 @@ export default function SettingsScreen() {
           </Typography>
         ) : null}
       </Card>
-      <Card>
+      <Card variant="outlined" style={styles.infoCard}>
         <View style={styles.infoRow}>
           <MaterialCommunityIcons
             name="bell-outline"
@@ -229,7 +252,7 @@ export default function SettingsScreen() {
           </View>
         </View>
       </Card>
-      <Card>
+      <Card variant="outlined" style={styles.infoCard}>
         <View style={styles.infoRow}>
           <MaterialCommunityIcons
             name="theme-light-dark"
@@ -253,14 +276,22 @@ const styles = StyleSheet.create({
   top: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    gap: spacing.md,
+    marginBottom: spacing.sm,
   },
-  spacer: { width: 48 },
-  choiceGroup: { gap: spacing.sm, marginBottom: spacing.lg },
-  options: { flexDirection: "row", flexWrap: "wrap", gap: spacing.xs },
+  spacer: { flex: 1 },
+  headerTitle: { flexShrink: 1 },
+  intro: { lineHeight: 28, marginBottom: spacing.sm },
+  preferencesCard: { borderRadius: radii.card, padding: spacing.mdPlus },
+  infoCard: { borderRadius: radii.card, padding: spacing.lg },
+  choiceGroup: { gap: spacing.sm, marginBottom: spacing.xl },
+  options: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   option: {
-    minHeight: 40,
+    minHeight: 50,
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "center",
+    gap: spacing.xs,
     paddingHorizontal: spacing.md,
     borderRadius: radii.full,
     borderWidth: 1,
@@ -268,10 +299,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   selected: {
-    borderColor: colors.primary,
+    borderColor: colors.primaryDark,
     backgroundColor: colors.primarySoft,
   },
-  note: { marginBottom: spacing.md, marginTop: -spacing.sm },
+  note: { marginBottom: spacing.md, marginTop: -spacing.md, lineHeight: 21 },
   infoRow: { flexDirection: "row", alignItems: "flex-start", gap: spacing.md },
   infoCopy: { flex: 1, gap: spacing.xs },
+  savedRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+    marginTop: spacing.sm,
+  },
 });
