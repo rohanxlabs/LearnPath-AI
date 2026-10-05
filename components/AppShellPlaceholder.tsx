@@ -19,7 +19,7 @@ export function AppShellPlaceholder({ title, icon }: AppShellPlaceholderProps) {
           <MaterialCommunityIcons
             name={icon}
             size={layout.iconHero}
-            color={colors.primary}
+            color={colors.primaryDark}
           />
         </View>
         <Typography variant="heading">{title}</Typography>

@@ -182,7 +182,7 @@ export default function HomeTab() {
             onPress={() => router.push("/(learning)/profile" as never)}
             style={styles.profileButton}
           >
-            <Typography variant="bodyMedium" color={colors.primary}>
+            <Typography variant="bodyMedium" color={colors.primaryDark}>
               {displayName.slice(0, 1).toUpperCase()}
             </Typography>
           </Pressable>
@@ -232,7 +232,7 @@ export default function HomeTab() {
           <View style={styles.loadingRow}>
             <ActivityIndicator color={colors.primary} />
             <Typography color={colors.textSecondary}>
-              Loading your next step…
+              Loading your next stepâ€¦
             </Typography>
           </View>
         </Card>
@@ -316,9 +316,9 @@ export default function HomeTab() {
             <MaterialCommunityIcons
               name="book-open-page-variant-outline"
               size={17}
-              color={colors.primary}
+              color={colors.primaryDark}
             />
-            <Typography variant="label" color={colors.primary}>
+            <Typography variant="label" color={colors.primaryDark}>
               CONTINUE LEARNING
             </Typography>
           </View>
@@ -338,7 +338,7 @@ export default function HomeTab() {
                 color={colors.textSecondary}
                 style={styles.lessonMeta}
               >
-                {nextLesson.estimatedMinutes} min ·{" "}
+                {nextLesson.estimatedMinutes} min Â·{" "}
                 {nextLesson.status === "completed" ? "Review" : "Next lesson"}
               </Typography>
               <Button label="Continue" onPress={openLesson} />
@@ -366,7 +366,7 @@ export default function HomeTab() {
                 Path progress
               </Typography>
               <Typography variant="caption" color={colors.textSecondary}>
-                {roadmap.lessonsCompleted} lessons ·{" "}
+                {roadmap.lessonsCompleted} lessons Â·{" "}
                 {Math.round(roadmap.progressPercent)}%
               </Typography>
             </View>
@@ -388,7 +388,7 @@ export default function HomeTab() {
             <View style={styles.inlineLoading}>
               <ActivityIndicator size="small" color={colors.primary} />
               <Typography variant="caption" color={colors.textSecondary}>
-                Checking your next step…
+                Checking your next stepâ€¦
               </Typography>
             </View>
           ) : null}
@@ -414,7 +414,7 @@ export default function HomeTab() {
             <MaterialCommunityIcons
               name={weeklyLessons ? "check-circle-outline" : "fire"}
               size={20}
-              color={colors.primary}
+              color={colors.primaryDark}
             />
           </View>
           <View style={styles.activityCopy}>
@@ -451,7 +451,7 @@ export default function HomeTab() {
           color={colors.textMuted}
           style={styles.footer}
         >
-          Restoring your active learning path…
+          Restoring your active learning pathâ€¦
         </Typography>
       ) : null}
     </Screen>

@@ -162,7 +162,7 @@ export default function ProjectScreen() {
   };
   const stateLabel =
     project?.progress === 100
-      ? "Done · self-reported"
+      ? "Done Â· self-reported"
       : project?.progress
         ? "In progress"
         : "Not started";
@@ -186,7 +186,7 @@ export default function ProjectScreen() {
           <View style={styles.center}>
             <ActivityIndicator color={colors.primary} />
             <Typography color={colors.textSecondary}>
-              Opening project…
+              Opening projectâ€¦
             </Typography>
           </View>
         ) : error && !project ? (
@@ -207,7 +207,7 @@ export default function ProjectScreen() {
                 <MaterialCommunityIcons
                   name="hammer-wrench"
                   size={19}
-                  color={colors.primary}
+                  color={colors.primaryDark}
                 />
               </View>
               <Typography variant="caption" color={colors.textSecondary}>
@@ -223,7 +223,7 @@ export default function ProjectScreen() {
               </Typography>
             ) : null}
             <Card>
-              <Typography variant="bodyMedium">What you’ll build</Typography>
+              <Typography variant="bodyMedium">What youâ€™ll build</Typography>
               <Typography color={colors.textSecondary} style={styles.copy}>
                 Use this project to apply the ideas from your learning path. The
                 app is your guide and progress tracker; build with your
@@ -258,7 +258,7 @@ export default function ProjectScreen() {
                       <MaterialCommunityIcons
                         name="checkbox-blank-circle-outline"
                         size={18}
-                        color={colors.primary}
+                        color={colors.primaryDark}
                       />
                       <Typography style={styles.requirementText}>
                         {feature}
@@ -280,7 +280,7 @@ export default function ProjectScreen() {
                 <Typography variant="bodyMedium">
                   Your project progress
                 </Typography>
-                <Typography variant="caption" color={colors.primary}>
+                <Typography variant="caption" color={colors.primaryDark}>
                   {stateLabel}
                 </Typography>
               </View>

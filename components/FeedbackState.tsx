@@ -14,7 +14,7 @@ const content: Record<
     title: string;
   }
 > = {
-  loading: { icon: "progress-clock", color: colors.primary, title: "Loading" },
+  loading: { icon: "progress-clock", color: colors.primaryDark, title: "Loading" },
   empty: {
     icon: "bookshelf",
     color: colors.textSecondary,
@@ -28,7 +28,7 @@ const content: Record<
   offline: {
     icon: "cloud-off-outline",
     color: colors.warning,
-    title: "You’re offline",
+    title: "Youâ€™re offline",
   },
 };
 

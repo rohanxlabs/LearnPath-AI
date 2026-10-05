@@ -7,6 +7,7 @@ import {
   type PropsWithChildren,
 } from "react";
 import * as Linking from "expo-linking";
+import * as WebBrowser from "expo-web-browser";
 import type { Session } from "@supabase/supabase-js";
 
 import { ApiError, apiRequest, getApiBaseUrl } from "../lib/api";
@@ -18,6 +19,8 @@ import {
 } from "../lib/mobileCache";
 import { supabase, supabaseConfigError } from "../lib/supabase";
 import { AuthContext, type BootstrapData } from "../hooks/useAuth";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const [status, setStatus] = useState<
@@ -200,6 +203,28 @@ export function AuthProvider({ children }: PropsWithChildren) {
     [applySession, requireClient],
   );
 
+  /** true = signed in, false = person closed the browser. */
+  const signInWithGoogle = useCallback(async () => {
+    const client = requireClient();
+    const redirectTo = Linking.createURL("callback");
+    const { data, error } = await client.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo, skipBrowserRedirect: true },
+    });
+    if (error) throw error;
+    if (!data.url) throw new Error("Google sign-in could not be started.");
+    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+    if (result.type !== "success") return false;
+    const rawCode = Linking.parse(result.url).queryParams?.code;
+    const code = Array.isArray(rawCode) ? rawCode[0] : rawCode;
+    if (!code) throw new Error("Google sign-in did not finish. Please try again.");
+    const { data: exchanged, error: exchangeError } =
+      await client.auth.exchangeCodeForSession(code);
+    if (exchangeError) throw exchangeError;
+    if (exchanged.session) await applySession(exchanged.session);
+    return true;
+  }, [applySession, requireClient]);
+
   const signUp = useCallback(
     async (email: string, password: string) => {
       const client = requireClient();
@@ -270,6 +295,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       bootstrapStale,
       bootstrapSavedAt,
       signIn,
+      signInWithGoogle,
       signUp,
       sendPasswordReset,
       updatePassword,
@@ -286,6 +312,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       bootstrapStale,
       bootstrapSavedAt,
       signIn,
+      signInWithGoogle,
       signUp,
       sendPasswordReset,
       updatePassword,

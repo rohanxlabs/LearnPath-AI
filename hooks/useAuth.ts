@@ -24,6 +24,7 @@ export type AuthContextValue = {
   bootstrapSavedAt: string | null;
   authConfigError: string | null;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<boolean>;
   signUp: (email: string, password: string) => Promise<boolean>;
   sendPasswordReset: (email: string) => Promise<void>;
   updatePassword: (password: string) => Promise<void>;

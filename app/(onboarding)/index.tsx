@@ -113,7 +113,7 @@ export default function CreatePathScreen() {
       <ProgressBar value={(step + 1) / stepTitles.length} label={`Step ${step + 1} of ${stepTitles.length}`} />
 
       <View style={[styles.headingBlock, step === 0 && styles.goalHeadingBlock, step > 0 && step <= 3 && styles.experienceHeadingBlock]}>
-        <Typography variant="label" color={step <= 3 ? colors.primaryDark : colors.primary} style={step <= 3 && styles.goalEyebrow}>BUILD A PATH THAT FITS YOU</Typography>
+        <Typography variant="label" color={colors.primaryDark} style={step <= 3 && styles.goalEyebrow}>BUILD A PATH THAT FITS YOU</Typography>
         <Typography variant={step <= 3 ? "display" : "heading"} style={[styles.heading, step === 0 && styles.goalHeading, step > 0 && step <= 3 && styles.experienceHeading]}>{stepTitles[step]}</Typography>
         <Typography color={colors.textSecondary} style={step > 0 && step <= 3 && styles.experienceDescription}>
           {step === 0 ? "What would you like to learn? Start with a topic or a goal." : null}

@@ -247,7 +247,7 @@ export default function MentorTab() {
       const reply =
         typeof response === "string"
           ? response.trim()
-          : "I couldn’t prepare a response. Please try again.";
+          : "I couldnâ€™t prepare a response. Please try again.";
       setOfflineReply(
         reply.toLowerCase().startsWith("ai mentor (offline mode)"),
       );
@@ -264,13 +264,13 @@ export default function MentorTab() {
       setDraft(message);
       if (cause instanceof ApiError && cause.status === 429)
         setQuotaMessage(
-          "You’ve reached the Mentor request limit for now. Your message is still here; try again later.",
+          "Youâ€™ve reached the Mentor request limit for now. Your message is still here; try again later.",
         );
       else
         setError(
           cause instanceof Error
             ? cause.message
-            : "Mentor couldn’t respond. Your message is saved in the draft field.",
+            : "Mentor couldnâ€™t respond. Your message is saved in the draft field.",
         );
     } finally {
       setSending(false);
@@ -320,7 +320,7 @@ export default function MentorTab() {
               >
                 {selectedPath?.title ?? "Learning path"}
                 {mentorContext?.lesson?.name || activeLessonName
-                  ? ` · ${mentorContext?.lesson?.name || activeLessonName}`
+                  ? ` Â· ${mentorContext?.lesson?.name || activeLessonName}`
                   : ""}
               </Typography>
               <Pressable
@@ -368,7 +368,7 @@ export default function MentorTab() {
                   <MaterialCommunityIcons
                     name="map-marker-path"
                     size={16}
-                    color={colors.primary}
+                    color={colors.primaryDark}
                   />
                   <Typography
                     variant="caption"
@@ -466,7 +466,7 @@ export default function MentorTab() {
             <View style={styles.typing}>
               <ActivityIndicator size="small" color={colors.primary} />
               <Typography variant="caption" color={colors.textSecondary}>
-                Mentor is thinking…
+                Mentor is thinkingâ€¦
               </Typography>
             </View>
           ) : null}
@@ -512,7 +512,7 @@ export default function MentorTab() {
         <View style={styles.composer}>
           <TextInput
             accessibilityLabel="Message AI Mentor"
-            placeholder="Ask your Mentor…"
+            placeholder="Ask your Mentorâ€¦"
             placeholderTextColor={colors.textMuted}
             value={draft}
             onChangeText={setDraft}

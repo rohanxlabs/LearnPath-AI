@@ -14,13 +14,13 @@ export default function PathReadyScreen() {
     <Screen scroll contentContainerStyle={styles.screenContent}>
       <View style={styles.hero}>
         <View style={styles.successMark}><MaterialCommunityIcons name="check" size={30} color={colors.surface} /></View>
-        <Typography variant="label" color={colors.primary}>YOUR PATH IS READY</Typography>
+        <Typography variant="label" color={colors.primaryDark}>YOUR PATH IS READY</Typography>
         <Typography variant="heading" style={styles.title}>{title || "Your learning path"}</Typography>
         <Typography color={colors.textSecondary} style={styles.body}>A clear next step, shaped around what you want to learn.</Typography>
       </View>
       <Card>
         <View style={styles.cardHeading}>
-          <View style={styles.cardIcon}><MaterialCommunityIcons name="map-marker-path" size={21} color={colors.primary} /></View>
+          <View style={styles.cardIcon}><MaterialCommunityIcons name="map-marker-path" size={21} color={colors.primaryDark} /></View>
           <View style={styles.cardTitleWrap}><Typography variant="bodyMedium">Your learning roadmap</Typography><Typography variant="caption" color={colors.textSecondary}>{count ? `${count} ${count === 1 ? "phase" : "phases"} to explore` : "Ready for your first lesson"}</Typography></View>
         </View>
         <ProgressBar value={0} label="Path progress, just getting started" />
@@ -28,8 +28,8 @@ export default function PathReadyScreen() {
       </Card>
       <Card>
         <View style={styles.nextStep}>
-          <MaterialCommunityIcons name="lightbulb-on-outline" size={21} color={colors.primary} />
-          <View style={styles.nextCopy}><Typography variant="label" color={colors.primary}>YOUR FIRST STEP</Typography><Typography variant="bodyMedium" style={styles.nextTitle}>Open your path and choose where to begin.</Typography></View>
+          <MaterialCommunityIcons name="lightbulb-on-outline" size={21} color={colors.primaryDark} />
+          <View style={styles.nextCopy}><Typography variant="label" color={colors.primaryDark}>YOUR FIRST STEP</Typography><Typography variant="bodyMedium" style={styles.nextTitle}>Open your path and choose where to begin.</Typography></View>
         </View>
       </Card>
       <View style={styles.footer}>

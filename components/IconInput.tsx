@@ -23,7 +23,7 @@ type IconInputProps = Omit<TextInputProps, "style"> & {
 export function IconInput({
   accessibilityLabel,
   leftIcon,
-  leftIconColor = colors.primary,
+  leftIconColor = colors.primaryDark,
   rightAccessory,
   backgroundColor = colors.surfaceSubtle,
   borderColor = colors.border,

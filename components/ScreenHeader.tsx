@@ -38,7 +38,7 @@ export function ScreenHeader({
             <MaterialCommunityIcons
               name={icon}
               size={layout.iconMedium}
-              color={colors.primary}
+              color={colors.primaryDark}
             />
           </View>
         ) : null}

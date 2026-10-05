@@ -333,7 +333,7 @@ export default function LessonScreen() {
       setError(
         cause instanceof Error
           ? cause.message
-          : "Your lesson couldn’t load. Please try again.",
+          : "Your lesson couldnâ€™t load. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -380,7 +380,7 @@ export default function LessonScreen() {
       setError(
         cause instanceof Error
           ? cause.message
-          : "Your completion couldn’t be saved. Retry when you’re online.",
+          : "Your completion couldnâ€™t be saved. Retry when youâ€™re online.",
       );
     } finally {
       setSaving(false);
@@ -390,7 +390,7 @@ export default function LessonScreen() {
   const openResource = async (resource: LessonPayload["resources"][number]) => {
     const url = safeHttpUrl(resource.url);
     if (!url) {
-      setResourceError("This resource link isn’t available.");
+      setResourceError("This resource link isnâ€™t available.");
       return;
     }
     setResourceError(null);
@@ -409,7 +409,7 @@ export default function LessonScreen() {
         }).catch(() => undefined);
       }
     } catch {
-      setResourceError("This link couldn’t be opened on your device.");
+      setResourceError("This link couldnâ€™t be opened on your device.");
     }
   };
 
@@ -453,7 +453,7 @@ export default function LessonScreen() {
           <View style={styles.loading}>
             <ActivityIndicator color={colors.primary} />
             <Typography color={colors.textSecondary}>
-              Opening your lesson…
+              Opening your lessonâ€¦
             </Typography>
           </View>
         ) : error && !lesson ? (
@@ -465,7 +465,7 @@ export default function LessonScreen() {
                 color={colors.error}
               />
               <Typography variant="title" style={styles.errorTitle}>
-                This lesson didn’t load
+                This lesson didnâ€™t load
               </Typography>
               <Typography color={colors.textSecondary} style={styles.errorCopy}>
                 {error}
@@ -490,9 +490,9 @@ export default function LessonScreen() {
                   <MaterialCommunityIcons
                     name="book-open-page-variant-outline"
                     size={15}
-                    color={colors.primary}
+                    color={colors.primaryDark}
                   />
-                  <Typography variant="caption" color={colors.primary}>
+                  <Typography variant="caption" color={colors.primaryDark}>
                     {lesson.type.toUpperCase()}
                   </Typography>
                 </View>
@@ -544,12 +544,12 @@ export default function LessonScreen() {
                       <MaterialCommunityIcons
                         name="flag-checkered"
                         size={20}
-                        color={colors.primary}
+                        color={colors.primaryDark}
                       />
                     </View>
                     <View style={styles.objectiveHeading}>
                       <Typography variant="bodyMedium">
-                        What you’ll learn
+                        What youâ€™ll learn
                       </Typography>
                       <Typography
                         variant="caption"
@@ -574,7 +574,7 @@ export default function LessonScreen() {
                           <MaterialCommunityIcons
                             name="check-circle-outline"
                             size={18}
-                            color={colors.primary}
+                            color={colors.primaryDark}
                           />
                           <Typography style={styles.objectiveText}>
                             {item}
@@ -613,7 +613,7 @@ export default function LessonScreen() {
                     <MaterialCommunityIcons
                       name="head-question-outline"
                       size={19}
-                      color={colors.primary}
+                      color={colors.primaryDark}
                     />
                   </View>
                   <View style={styles.actionCopy}>
@@ -640,7 +640,7 @@ export default function LessonScreen() {
 
               {lesson.project ? (
                 <Card variant="subtle">
-                  <Typography variant="label" color={colors.primary}>
+                  <Typography variant="label" color={colors.primaryDark}>
                     PUT IT INTO PRACTICE
                   </Typography>
                   <Typography variant="bodyMedium" style={styles.projectTitle}>
@@ -718,7 +718,7 @@ export default function LessonScreen() {
                         <MaterialCommunityIcons
                           name="open-in-new"
                           size={18}
-                          color={colors.primary}
+                          color={colors.primaryDark}
                         />
                       </View>
                       <View style={styles.resourceCopy}>
@@ -731,7 +731,7 @@ export default function LessonScreen() {
                         >
                           {[resource.provider, resource.type, resource.duration]
                             .filter(Boolean)
-                            .join(" · ")}
+                            .join(" Â· ")}
                         </Typography>
                       </View>
                       <MaterialCommunityIcons
@@ -784,7 +784,7 @@ export default function LessonScreen() {
                   >
                     Total XP: {Number(completion.xp) || 0}
                     {typeof completion.completionPercent === "number"
-                      ? ` · Path ${Math.round(completion.completionPercent)}% complete`
+                      ? ` Â· Path ${Math.round(completion.completionPercent)}% complete`
                       : ""}
                   </Typography>
                   <Button
@@ -951,7 +951,7 @@ const styles = StyleSheet.create({
   quote: {
     padding: spacing.md,
     borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
+    borderLeftColor: colors.primaryDark,
     backgroundColor: colors.primaryTint,
     borderRadius: radii.md,
   },

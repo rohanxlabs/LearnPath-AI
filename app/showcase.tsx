@@ -30,8 +30,8 @@ import {
 export default function DesignSystemShowcase() {
   return (
     <Screen scroll keyboardAvoiding>
-      <Typography variant="label" color={colors.primary}>
-        LEARNPATH DESIGN SYSTEM · PHASE 1
+      <Typography variant="label" color={colors.primaryDark}>
+        LEARNPATH DESIGN SYSTEM Â· PHASE 1
       </Typography>
       <Typography variant="display" style={styles.title}>
         Clarity builds momentum.
@@ -55,10 +55,10 @@ export default function DesignSystemShowcase() {
         </Typography>
         <Typography variant="label">LABEL</Typography>
         <Typography variant="caption" color={colors.textMuted}>
-          Caption · secondary detail
+          Caption Â· secondary detail
         </Typography>
-        <Typography variant="button">Button text · 15 / 20</Typography>
-        <Typography variant="numeric" color={colors.primary}>
+        <Typography variant="button">Button text Â· 15 / 20</Typography>
+        <Typography variant="numeric" color={colors.primaryDark}>
           68%
         </Typography>
         <Typography variant="navigation" color={colors.textSecondary}>
@@ -211,12 +211,12 @@ export default function DesignSystemShowcase() {
           color={colors.textSecondary}
           style={styles.progressLabel}
         >
-          68% · 8 of 12 lessons
+          68% Â· 8 of 12 lessons
         </Typography>
         <ProgressBar value={0.68} label="Learning path 68 percent" />
         <Divider />
         <Typography variant="caption" color={colors.textSecondary}>
-          Lesson · phase · roadmap · skill use the same accessible progress
+          Lesson Â· phase Â· roadmap Â· skill use the same accessible progress
           primitive.
         </Typography>
         <ProgressBar value={1} tone="success" label="Skill completed" />
@@ -226,7 +226,7 @@ export default function DesignSystemShowcase() {
       <View style={styles.column}>
         <FeedbackState
           kind="loading"
-          message="Loading your learning content…"
+          message="Loading your learning contentâ€¦"
         />
         <Skeleton width="100%" height={18} label="Loading lesson title" />
         <Skeleton width="72%" height={14} label="Loading lesson summary" />
@@ -238,7 +238,7 @@ export default function DesignSystemShowcase() {
         />
         <FeedbackState
           kind="error"
-          message="We couldn’t load this content. Your progress has not been changed."
+          message="We couldnâ€™t load this content. Your progress has not been changed."
           actionLabel="Try again"
           onAction={() => undefined}
         />
@@ -255,7 +255,7 @@ export default function DesignSystemShowcase() {
       <Card variant="subtle">
         <Typography variant="bodyMedium">Spacing scale</Typography>
         <Typography variant="caption" color={colors.textSecondary}>
-          4 · 8 · 12 · 16 · 20 · 24 · 32 · 40 · 48 · 64
+          4 Â· 8 Â· 12 Â· 16 Â· 20 Â· 24 Â· 32 Â· 40 Â· 48 Â· 64
         </Typography>
         <Divider />
         <Typography variant="bodyMedium">Radii</Typography>
@@ -278,10 +278,10 @@ export default function DesignSystemShowcase() {
               key={size}
               name="school-outline"
               size={size}
-              color={colors.primary}
+              color={colors.primaryDark}
             />
           ))}
-          <Typography variant="caption">16 · 20 · 24 · 32</Typography>
+          <Typography variant="caption">16 Â· 20 Â· 24 Â· 32</Typography>
         </View>
       </Card>
       <SectionHeader title="Navigation and header foundation" />
@@ -294,7 +294,7 @@ export default function DesignSystemShowcase() {
               Foundations of data science
             </Typography>
             <Typography variant="caption" color={colors.textSecondary}>
-              Module 2 · Lesson 4
+              Module 2 Â· Lesson 4
             </Typography>
           </View>
           <IconButton icon="dots-horizontal" label="More lesson actions" />
@@ -315,11 +315,11 @@ export default function DesignSystemShowcase() {
                   )[index]
                 }
                 size={24}
-                color={index === 0 ? colors.primary : colors.textMuted}
+                color={index === 0 ? colors.primaryDark : colors.textMuted}
               />
               <Typography
                 variant="navigation"
-                color={index === 0 ? colors.primary : colors.textMuted}
+                color={index === 0 ? colors.primaryDark : colors.textMuted}
               >
                 {label}
               </Typography>

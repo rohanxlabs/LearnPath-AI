@@ -236,7 +236,7 @@ export default function ProgressTab() {
           <View style={styles.loading}>
             <ActivityIndicator color={colors.primary} />
             <Typography color={colors.textSecondary}>
-              Loading your progress…
+              Loading your progressâ€¦
             </Typography>
           </View>
         </Card>
@@ -248,7 +248,7 @@ export default function ProgressTab() {
             <MaterialCommunityIcons
               name="flag-checkered"
               size={26}
-              color={colors.primary}
+              color={colors.primaryDark}
             />
           </View>
           <Typography variant="title">Progress starts with a lesson</Typography>
@@ -478,7 +478,7 @@ export default function ProgressTab() {
                     {skill.skillName}
                   </Typography>
                   <Typography variant="caption" color={colors.textSecondary} numberOfLines={1}>
-                    {readable(skill.proficiencyLevel)} ·{" "}
+                    {readable(skill.proficiencyLevel)} Â·{" "}
                     {readable(skill.confidenceLevel)} confidence
                   </Typography>
                 </View>
@@ -496,7 +496,7 @@ export default function ProgressTab() {
                 {skill.evidenceCount} evidence{" "}
                 {skill.evidenceCount === 1 ? "item" : "items"}
                 {skill.lastEvidenceAt
-                  ? ` · updated ${formatEvidenceDate(skill.lastEvidenceAt)}`
+                  ? ` Â· updated ${formatEvidenceDate(skill.lastEvidenceAt)}`
                   : ""}
               </Typography>
             </Card>

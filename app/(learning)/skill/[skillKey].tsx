@@ -140,7 +140,7 @@ export default function SkillDetailScreen() {
           <View style={styles.loading}>
             <ActivityIndicator color={colors.primary} />
             <Typography color={colors.textSecondary}>
-              Loading skill evidence…
+              Loading skill evidenceâ€¦
             </Typography>
           </View>
         </Card>
@@ -163,7 +163,7 @@ export default function SkillDetailScreen() {
               <MaterialCommunityIcons
                 name="brain"
                 size={26}
-                color={colors.primary}
+                color={colors.primaryDark}
               />
             </View>
             <Typography variant="display">{skill.skillName}</Typography>
@@ -172,7 +172,7 @@ export default function SkillDetailScreen() {
             </Typography>
           </View>
           <Card>
-            <Typography variant="label" color={colors.primary}>
+            <Typography variant="label" color={colors.primaryDark}>
               PROFICIENCY ESTIMATE
             </Typography>
             <Typography variant="heading" style={styles.level}>
@@ -191,7 +191,7 @@ export default function SkillDetailScreen() {
               Based on {skill.evidenceCount} recorded{" "}
               {skill.evidenceCount === 1 ? "evidence item" : "evidence items"}
               {skill.lastEvidenceAt
-                ? ` · most recent ${new Date(skill.lastEvidenceAt).toLocaleDateString()}`
+                ? ` Â· most recent ${new Date(skill.lastEvidenceAt).toLocaleDateString()}`
                 : "."}{" "}
               Confidence reflects the amount and consistency of evidence
               available to LearnPath.
@@ -203,7 +203,7 @@ export default function SkillDetailScreen() {
                 <MaterialCommunityIcons
                   name="book-open-page-variant-outline"
                   size={20}
-                  color={colors.primary}
+                  color={colors.primaryDark}
                 />
                 <Typography variant="bodyMedium">
                   Keep building this skill

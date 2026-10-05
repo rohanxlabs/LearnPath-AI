@@ -325,7 +325,7 @@ export default function QuizScreen() {
           <View style={styles.center}>
             <ActivityIndicator color={colors.primary} />
             <Typography color={colors.textSecondary}>
-              Preparing practice…
+              Preparing practiceâ€¦
             </Typography>
           </View>
         ) : error && !quiz ? (
@@ -442,7 +442,7 @@ export default function QuizScreen() {
                           }
                         >
                           {attempt.answers[current.id] === current.correctIndex
-                            ? "That’s right"
+                            ? "Thatâ€™s right"
                             : "Not quite"}
                         </Typography>
                         <Typography color={colors.textSecondary}>
@@ -501,7 +501,7 @@ export default function QuizScreen() {
                     ? "Excellent work"
                     : score === 0
                       ? "A good place to practice"
-                      : "You’re making progress"}
+                      : "Youâ€™re making progress"}
                 </Typography>
                 <Typography color={colors.textSecondary}>
                   You got {score} of {quiz.questions.length} correct. Review the
@@ -553,7 +553,7 @@ export default function QuizScreen() {
                 recommendation?.target?.lessonId &&
                 roadmapId ? (
                   <Card variant="selected">
-                    <Typography variant="label" color={colors.primary}>
+                    <Typography variant="label" color={colors.primaryDark}>
                       RECOMMENDED NEXT STEP
                     </Typography>
                     <Typography
@@ -590,7 +590,7 @@ export default function QuizScreen() {
                   <View style={styles.recommendationLoading}>
                     <ActivityIndicator size="small" color={colors.primary} />
                     <Typography variant="caption" color={colors.textSecondary}>
-                      Finding your next step…
+                      Finding your next stepâ€¦
                     </Typography>
                   </View>
                 ) : null}

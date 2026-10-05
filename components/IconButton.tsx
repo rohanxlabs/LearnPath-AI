@@ -46,7 +46,7 @@ export function IconButton({
         }
         color={
           selected
-            ? colors.primary
+            ? colors.primaryDark
             : disabled
               ? colors.textDisabled
               : colors.textSecondary

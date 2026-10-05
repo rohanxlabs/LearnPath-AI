@@ -164,7 +164,7 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons
               name="tune-variant"
               size={20}
-              color={colors.primary}
+              color={colors.primaryDark}
             />
           </View>
           <View style={styles.identityCopy}>

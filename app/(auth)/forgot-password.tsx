@@ -32,7 +32,7 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <AuthScreen title="Reset your password" subtitle="We’ll send a secure link to the email address on your account.">
+    <AuthScreen title="Reset your password" subtitle="Weâ€™ll send a secure link to the email address on your account.">
       {authConfigError ? <AuthError message={authConfigError} /> : null}
       {error ? <AuthError message={error} /> : null}
       {sent ? (
@@ -46,7 +46,7 @@ export default function ForgotPasswordScreen() {
           <Button label="Send reset link" loading={loading} disabled={Boolean(authConfigError)} onPress={() => void submit()} />
         </>
       )}
-      <Typography accessibilityRole="button" accessibilityLabel="Return to sign in" color={colors.primary} onPress={() => router.replace("/(auth)/sign-in" as Href)} style={{ textAlign: "center", padding: spacing.sm }}>
+      <Typography accessibilityRole="button" accessibilityLabel="Return to sign in" color={colors.primaryDark} onPress={() => router.replace("/(auth)/sign-in" as Href)} style={{ textAlign: "center", padding: spacing.sm }}>
         Back to sign in
       </Typography>
     </AuthScreen>

@@ -32,6 +32,7 @@ export const supabase = supabaseConfigError
         autoRefreshToken: true,
         persistSession: true,
         detectSessionInUrl: false,
+        flowType: "pkce",
       },
     });
 

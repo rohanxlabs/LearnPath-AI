@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter, type Href } from "expo-router";
-import { Alert, Pressable, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 
 import { AuthError, AuthScreen } from "../../components/auth/AuthScreen";
@@ -11,12 +11,13 @@ import { colors, radii, spacing, welcomeColors } from "../../theme/tokens";
 
 export default function SignInScreen() {
   const router = useRouter();
-  const { signIn, authConfigError } = useAuth();
+  const { signIn, signInWithGoogle, authConfigError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const submit = async () => {
     setError(null);
@@ -40,18 +41,33 @@ export default function SignInScreen() {
     }
   };
 
+  const continueWithGoogle = async () => {
+    setError(null);
+    setGoogleLoading(true);
+    try {
+      if (await signInWithGoogle()) router.replace("/(tabs)/home" as Href);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Google sign-in could not be completed.");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
   return (
     <AuthScreen welcome title={'Your learning journey\nstarts here.'} subtitle="Create your path and learn a little every day.">
-      {authConfigError ? <AuthError message={authConfigError} /> : null}
+      {authConfigError ? <AuthError message={__DEV__ ? authConfigError : "Sign-in is temporarily unavailable. Please try again later."} /> : null}
       {error ? <AuthError message={error} /> : null}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Continue with Google"
-        onPress={() => Alert.alert("Google sign-in unavailable", "Google sign-in hasn't been connected yet.")}
+        onPress={() => void continueWithGoogle()}
+        disabled={googleLoading || loading || Boolean(authConfigError)}
         style={({ pressed }) => [styles.googleButton, pressed && styles.pressed]}
       >
-        <FontAwesome name="google" size={22} color="#4285F4" />
-        <Typography variant="bodyStrong" color={welcomeColors.white}>Continue with Google</Typography>
+        {googleLoading ? <ActivityIndicator color={welcomeColors.white} /> : <>
+          <FontAwesome name="google" size={22} color="#4285F4" />
+          <Typography variant="bodyStrong" color={welcomeColors.white}>Continue with Google</Typography>
+        </>}
       </Pressable>
       <View style={styles.divider}>
         <View style={styles.dividerLine} />
@@ -65,7 +81,7 @@ export default function SignInScreen() {
           Forgot password?
         </Typography>
       </View>
-      <Button label="Continue" size="large" loading={loading} disabled={Boolean(authConfigError)} onPress={() => void submit()} />
+      <Button label="Continue" size="large" loading={loading} disabled={googleLoading || Boolean(authConfigError)} onPress={() => void submit()} />
       <View style={styles.footer}>
         <Typography color={colors.textSecondary}>Don&apos;t have an account? </Typography>
         <Pressable accessibilityRole="button" accessibilityLabel="Sign up" onPress={() => router.push("/(auth)/sign-up" as Href)} hitSlop={8}>

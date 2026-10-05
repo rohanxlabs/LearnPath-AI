@@ -47,7 +47,7 @@ export default function ResetPasswordScreen() {
       return;
     }
     if (password !== confirmPassword) {
-      setExchangeError("Those passwords don’t match yet.");
+      setExchangeError("Those passwords donâ€™t match yet.");
       return;
     }
     setLoading(true);
@@ -64,7 +64,7 @@ export default function ResetPasswordScreen() {
   };
 
   return (
-    <AuthScreen title="Choose a new password" subtitle="Use a strong password you haven’t used here before.">
+    <AuthScreen title="Choose a new password" subtitle="Use a strong password you havenâ€™t used here before.">
       {error ? <AuthError message={error} /> : null}
       {message ? <Typography color={colors.success}>{message}</Typography> : null}
       {ready && !message ? (
@@ -76,7 +76,7 @@ export default function ResetPasswordScreen() {
         </>
       ) : null}
       {message ? <Button label="Continue to LearnPath" onPress={() => router.replace("/(tabs)/home" as Href)} /> : null}
-      {error ? <Typography accessibilityRole="button" accessibilityLabel="Return to sign in" color={colors.primary} onPress={() => router.replace("/(auth)/sign-in" as Href)} style={{ textAlign: "center", padding: spacing.sm }}>Back to sign in</Typography> : null}
+      {error ? <Typography accessibilityRole="button" accessibilityLabel="Return to sign in" color={colors.primaryDark} onPress={() => router.replace("/(auth)/sign-in" as Href)} style={{ textAlign: "center", padding: spacing.sm }}>Back to sign in</Typography> : null}
     </AuthScreen>
   );
 }

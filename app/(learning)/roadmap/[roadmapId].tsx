@@ -44,7 +44,7 @@ function lessonStatus(lessonStatus: string, isRecommended: boolean) {
     return {
       icon: isRecommended ? "play-circle-outline" : "circle-outline",
       label: isRecommended ? "Recommended" : "Ready",
-      color: isRecommended ? colors.primaryDark : colors.primary,
+      color: colors.primaryDark,
     } as const;
   }
   return {
@@ -123,7 +123,7 @@ function PhaseCard({
                   ? colors.success
                   : locked
                     ? colors.textMuted
-                    : colors.primary
+                    : colors.primaryDark
               }
             >
               {complete
@@ -138,7 +138,7 @@ function PhaseCard({
             <Typography variant="caption" color={colors.textSecondary}>
               {locked
                 ? "Unlocks as you complete earlier lessons"
-                : `${completedCount} of ${lessons.length} ${lessons.length === 1 ? "lesson" : "lessons"}${phase.estimatedHours ? ` · about ${phase.estimatedHours}h` : ""}`}
+                : `${completedCount} of ${lessons.length} ${lessons.length === 1 ? "lesson" : "lessons"}${phase.estimatedHours ? ` Â· about ${phase.estimatedHours}h` : ""}`}
             </Typography>
           </View>
           {!locked ? (
@@ -212,7 +212,7 @@ function PhaseCard({
                         >
                           {recommended ? "Recommended next" : status.label}
                           {lesson.estimatedMinutes
-                            ? ` · ${lesson.estimatedMinutes} min`
+                            ? ` Â· ${lesson.estimatedMinutes} min`
                             : ""}
                         </Typography>
                       </View>
@@ -381,7 +381,7 @@ export default function RoadmapScreen() {
           <View style={styles.loading}>
             <ActivityIndicator color={colors.primary} />
             <Typography color={colors.textSecondary}>
-              Loading your roadmap…
+              Loading your roadmapâ€¦
             </Typography>
           </View>
         </Card>
@@ -461,7 +461,7 @@ export default function RoadmapScreen() {
               </Typography>
               <Typography variant="caption" style={styles.nextMeta}>
                 {recommendationReason ||
-                  `About ${nextLesson.estimatedMinutes} minutes · ${nextLesson.xpReward} XP`}
+                  `About ${nextLesson.estimatedMinutes} minutes Â· ${nextLesson.xpReward} XP`}
               </Typography>
               <Button
                 label="Continue this lesson"

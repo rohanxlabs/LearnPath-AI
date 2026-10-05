@@ -29,7 +29,7 @@ export default function SignUpScreen() {
       return;
     }
     if (password !== confirmPassword) {
-      setError("Those passwords don’t match yet.");
+      setError("Those passwords donâ€™t match yet.");
       return;
     }
 
@@ -61,7 +61,7 @@ export default function SignUpScreen() {
       <Typography variant="caption" color={colors.textSecondary}>At least 10 characters, including a letter, number, and symbol.</Typography>
       <Button label="Create account" loading={loading} disabled={Boolean(authConfigError)} onPress={() => void submit()} />
       <View style={{ alignItems: "center" }}>
-        <Typography accessibilityRole="button" accessibilityLabel="Sign in to an existing account" color={colors.primary} onPress={() => router.replace("/(auth)/sign-in" as Href)} style={{ padding: spacing.sm }}>
+        <Typography accessibilityRole="button" accessibilityLabel="Sign in to an existing account" color={colors.primaryDark} onPress={() => router.replace("/(auth)/sign-in" as Href)} style={{ padding: spacing.sm }}>
           Already have an account? Sign in
         </Typography>
       </View>

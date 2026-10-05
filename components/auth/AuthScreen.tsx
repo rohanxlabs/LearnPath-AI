@@ -10,7 +10,7 @@ export function AuthScreen({ title, subtitle, children, welcome = false }: Props
     <Screen scroll keyboardAvoiding contentContainerStyle={welcome ? styles.welcomeContent : styles.content}>
       <View style={[styles.brand, welcome && styles.welcomeBrand]}>
         <View style={[styles.mark, welcome && styles.welcomeMark]}>
-          {welcome ? <MaterialCommunityIcons name="source-branch" size={28} color={welcomeColors.nearBlack} /> : <Typography variant="title" color={colors.primary}>L</Typography>}
+          {welcome ? <MaterialCommunityIcons name="source-branch" size={28} color={welcomeColors.nearBlack} /> : <Typography variant="title" color={colors.primaryDark}>L</Typography>}
         </View>
         <Typography variant={welcome ? "title" : "bodyMedium"} style={welcome && styles.brandName}>LearnPath AI</Typography>
       </View>
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primarySoft,
   },
   welcomeMark: { width: 48, height: 48, borderRadius: 24, backgroundColor: welcomeColors.periwinkle },
-  hero: { width: "100%", aspectRatio: 1.6, borderRadius: 28, marginBottom: spacing.lg, backgroundColor: welcomeColors.periwinkle },
+  hero: { width: "100%", aspectRatio: 1.25, borderRadius: 28, marginBottom: spacing.lg, backgroundColor: welcomeColors.periwinkle },
   heading: { gap: spacing.sm, marginTop: spacing.xxl, marginBottom: spacing.lg },
   welcomeHeading: { alignItems: "center", marginTop: 0, marginBottom: spacing.lg, gap: spacing.sm },
   welcomeTitle: { textAlign: "center", fontSize: 34, lineHeight: 38, letterSpacing: -0.8 },
